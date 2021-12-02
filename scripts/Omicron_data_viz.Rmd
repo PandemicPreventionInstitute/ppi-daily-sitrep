@@ -1,0 +1,140 @@
+---
+title: "Omicron_data_viz"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+library(tidyverse) # data wrangling
+library(tibble) # data wrangling
+library(janitor) # column naming
+library(countrycode) # country codes
+library(lubridate) # date times
+library(readxl) # excel import
+library(zoo) # calculate rolling averages
+library(R.utils) # R utilities
+library(stringr) # to parse strings in R
+library(tsoutliers) # remove outliers
+library(dplyr) # data wrangling
+library(cowplot)
+library(car)
+library(rgdal)
+library(maps)
+library(sf)
+library(giscoR)
+library(rgeos)
+ 
+theme_set(theme_cowplot())
+ggplot + background_grid(major = "xy", minor = "xy")
+
+
+OMICRON_DAILY_DATA_PATH<-'../data/gisaid_omicron_daily.csv'
+OMICRON_BY_COUNTRY_PATH<-'../data/omicron_by_country_last_30d.csv'
+GEOMETRY_PATH<- '/Users/kj22643/Documents/Documents/NGS_capacity_mapping/data/world_shape_file'
+OMICRON_DAILY_CASES<-paste0('../data/processed/', lubridate::today('EST'), '_metadata_summarized.csv')
+GISAID_DAILY_DATA_PATH<-'../data/gisaid_t.csv' # by country by day sequences
+GISAID_BY_COUNTRY_PATH<-'../data/gisaid_by_country.csv' # by country past 30 days sequences and cases 
+```
+Read in data
+```{r}
+omicron_t<-read.csv(OMICRON_DAILY_CASES) 
+omicron_seq<-omicron_t%>%group_by(country)%>%
+    summarise(cum_omicron_seq = sum(n, na.rm = TRUE))
+om_df<-read.csv(GISAID_BY_COUNTRY_PATH)
+my_spdf <- readOGR( 
+  dsn= GEOMETRY_PATH, 
+  layer="TM_WORLD_BORDERS_SIMPL-0.3",
+  verbose=FALSE
+)
+
+# convert to a dataframe
+my_df<-fortify(my_spdf)
+
+
+map_df<-merge(fortify(my_spdf), as.data.frame(my_spdf), by.x = "id", by.y=0)
+map_df <- map_df %>%
+  rename(code= ISO3)
+centr<-gCentroid(my_spdf, byid = TRUE)
+centr<-SpatialPointsDataFrame(centr, data = my_spdf@data)
+centroid_df<-centr@data
+full_map_df<-full_join(map_df, om_df, by = c("code" = "country_code"))
+centroid_df<-full_join(centroid_df, omicron_seq, by = c("NAME" = "country"))
+full_map_df<-full_join(full_map_df, omicron_seq, by = c("NAME" = "country"))
+
+#centroid_df$cum_omicron_seq[centroid_df$cum_omicron_seq==0]<-NA
+```
+Make maps
+```{r}
+map1<- ggplot(data = full_map_df, aes(x = long, y = lat)) + 
+    geom_polygon(aes(group = group, fill = cum_omicron_seq)) +
+    theme(legend.position = "bottom", legend.key.width = unit(1, "cm")) + 
+    scale_x_discrete(labels = NULL, breaks = NULL) +
+    scale_y_discrete(labels = NULL, breaks = NULL) +
+    theme(legend.text = element_text(size = 10),
+          legend.title = element_text(size = 10))+
+    labs(x = "", y = "", fill = "Omicron sequences")+
+    scale_fill_gradient2(low = "deeppink4",
+                        mid = "white",
+                        high = "chartreuse4", trans = "log",
+                        space = "Lab",
+                        guide = "colourbar",
+                        aesthetics = "fill")
+map1
+my_breaks <-100*c(1, 1/10, 1/100, 1/1000, 1/10000, 0)
+path = '../out/map_omicron.tiff'
+map2<- ggplot() + 
+    geom_polygon(data = full_map_df, aes(x = long, y = lat, group = group, fill = max_prevalence_variant_pct)) +
+    geom_point(data = centroid_df, aes(x = LON, y = LAT, size = cum_omicron_seq), color = "#E93850", alpha = 0.8)+
+    theme(legend.position = "bottom", legend.key.width = unit(0.8, "cm")) + 
+    scale_x_discrete(labels = NULL, breaks = NULL) +
+    scale_y_discrete(labels = NULL, breaks = NULL) +
+    labs(x = "", y = "", fill = "Prevalence threshold (%)", size = "Omicron sequences")+
+    theme(legend.text = element_text(size = 10),
+          legend.title = element_text(size = 8))+
+    scale_fill_gradient2(low = "#D6E8F6",
+                        mid = "#318AD0",
+                        high = "#184569", trans = "log",
+                        space = "Lab",
+                        breaks = my_breaks,
+                        labels = my_breaks,
+                        guide = "colourbar",
+                        aesthetics = "fill")
+map2
+ggsave(filename = path, width = 4, height = 3, units = "in", device = tiff, dpi = 300)
+
+my_breaks <-c(0.0001, 0.001, 0.01, 0.1, 1, 10)
+map3<- ggplot() + 
+    geom_polygon(data = full_map_df, aes(x = long, y = lat, group = group, fill = percent_of_recent_cases_sequenced)) +
+    geom_point(data = centroid_df, aes(x = LON, y = LAT, size = cum_omicron_seq))+
+    theme(legend.position = "bottom", legend.key.width = unit(1, "cm")) + 
+    scale_x_discrete(labels = NULL, breaks = NULL) +
+    scale_y_discrete(labels = NULL, breaks = NULL) +
+    labs(x = "", y = "", fill = "% cases sequenced", size = "Omicron sequences")+
+    theme(legend.text = element_text(size = 10),
+          legend.title = element_text(size = 10))+
+    scale_fill_gradient2(low = "powderblue",
+                        mid = "steelblue2",
+                        high = "navyblue", trans = "log",
+                        space = "Lab",
+                        breaks = my_breaks,
+                        labels = my_breaks,
+                        guide = "colourbar",
+                        aesthetics = "fill")
+map3
+```
+Join centroid dataframe with country data frame
+```{r}
+centroid_df$cum_omicron_seq_NA<-centroid_df$cum_omicron_seq
+centroid_df$cum_omicron_seq[is.na(centroid_df$cum_omicron_seq==0)]<-0
+om_df$log10_max_prevalence_variant_pct<-log10(om_df$max_prevalence_variant_pct)
+# Rounding for raw numbers
+om_df$max_prevalence_variant_pct[om_df$max_prevalence_variant_pct>0.01]<-round(om_df$max_prevalence_variant_pct[om_df$max_prevalence_variant_pct>0.01],2)
+om_df$max_prevalence_variant_pct[om_df$max_prevalence_variant_pct<=0.01]<-0.01
+om_df<-left_join(om_df, centroid_df, by = c("country_code" = "ISO3"))
+
+#write.csv(full_map_df, '../data/map_df.csv')
+#write.csv(centroid_df, '../data/centroid_df.csv')
+write.csv(om_df, '../data/gisaid_summary_df.csv')
+
+```
