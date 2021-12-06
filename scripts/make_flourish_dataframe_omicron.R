@@ -27,14 +27,20 @@ library(dplyr) # data wrangling
  
 # ------ Name data paths and set parameters -------------------------------------------
 rm(list = ls())
+today <- substr(lubridate::now('EST'), 1, 13)
+today <- chartr(old = ' ', new = '-', today)
+
+
+
 
 ## Set local file path names
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
 GISAID_DAILY_PATH<-'../data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
 OMICRON_DAILY_CASES<-paste0('../data/processed/metadata_summarized.csv')
-BNO_CASES_PATH<-'../data/raw/BNO_table.csv'
+BNO_CASES_BY_COUNTRY_PATH<-paste0('../data/raw/daily_BNO_file/', today,'.csv')
+BNO_CASES_BY_COUNTRY_DATE<-'../data/raw/BNO_scraped_master.csv'
 
-LAST_DATA_PULL_DATE<-as.Date("2021-12-01") # enter here "YYYY-10-18"
+LAST_DATA_PULL_DATE<-as.Date("2021-12-05") #substr(lubridate::now('EST'), 1, 10) # enter here "YYYY-10-18"
 TIME_WINDOW <- 90
 TIME_WINDOW_WEEK<- 6 
 TIME_WINDOW_MAX_PREV<-30
@@ -259,16 +265,19 @@ gisaid_recent_data<-gisaid_recent_data%>%
 
 
 #---- Merge Omicron cases from GISAID sequenced genomes and BNO table
-BNO_omicron<-read.csv(BNO_CASES_PATH)
+BNO_omicron<-read.csv(BNO_CASES_BY_COUNTRY_PATH)
 BNO_omicron<-BNO_omicron%>%
-  rename(BNO_confirmed = confirmed, BNO_probable = probable)
+  rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
+  select(code, BNO_confirmed, BNO_probable)
 
-omicron_t<-read.csv(OMICRON_DAILY_CASES) 
-omicron_seq<-omicron_t%>%group_by(country, code)%>%
+omicron_t<-read.csv(OMICRON_DAILY_CASES)
+omicron_seq<-omicron_t%>%group_by(code)%>%
   summarise(cum_omicron_seq = sum(n, na.rm = TRUE))
+omicron_seq<-omicron_seq%>%select(code, cum_omicron_seq)
 
 # combine the two tables
 omicron_seq<-full_join(omicron_seq, BNO_omicron, by = "code")
+omicron_seq<-distinct(omicron_seq) # remove duplicate rows
 omicron_seq$max_omicron<- rep(0, nrow(omicron_seq))
 # Set max
 for (i in 1:nrow(omicron_seq)){
@@ -276,6 +285,9 @@ for (i in 1:nrow(omicron_seq)){
 }
 
 omicron_seq$max_omicron[omicron_seq$max_omicron== -Inf]<-NA
+
+omicron_seq<- omicron_seq%>%
+  mutate(country_name = countrycode(code, origin = 'iso3c', destination = 'country.name'))
 
 
 # join GISAID data with omicron sequence counts
@@ -311,6 +323,76 @@ gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$max_prevale
 gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$max_prevalence_variant_pct>=95]<-'not estimated, insufficient recent sequencing'
 gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$cum_tpr<0.002 & gisaid_summary_df$max_prevalence_variant_pct>=95]<-'minimal recent COVID cases'
 
+
+# Write country-level data to csvs
 write.csv(omicron_seq, "../data/processed/omicron_seq.csv")
 write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv")
+
+#Country-date level data 
+BNO_omicron_t<-read.csv(BNO_CASES_BY_COUNTRY_DATE)
+BNO_omicron_t<-unique(BNO_omicron_t)
+BNO_omicron_t<-BNO_omicron_t%>%drop_na(confirmed)
+BNO_omicron_t<-BNO_omicron_t%>%rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
+  select(code, BNO_confirmed, BNO_probable, timestamp)
+BNO_omicron_t$date<-as.Date(substr(BNO_omicron_t$timestamp, 1, 10))
+
+# Keeps only the latest timestamp only for that day
+BNO_omicron_t<-BNO_omicron_t%>%group_by(code, date)%>%
+  filter(timestamp == max(timestamp))
+
+# Daily summary of BNO for all countries
+BNO_omicron_summary<-BNO_omicron_t%>%group_by(date)%>%
+  summarise(n_countries_BNO = n(),
+            n_case_BNO = sum(BNO_confirmed, na.rm = TRUE))
+write.csv(BNO_omicron_summary, "../data/processed/BNO_summary_by_day.csv")
+
+# Do the same with the GISAID omicron sequences
+omicron_t<-read.csv(OMICRON_DAILY_CASES)
+omicron_t<-omicron_t%>%rename(GISAID_sequences = n)
+omicron_t$submission_date<-as.Date(omicron_t$submission_date)
+omicron_t$GISAID_sequences<-replace_na(omicron_t$GISAID_sequences, 0)
+
+
+# Need to make a column for cumulative sequences 
+omicron_t<-omicron_t%>%group_by(code)%>%
+  mutate(cum_GISAID_seq = cumsum(GISAID_sequences))
+
+# remove rows where cumulative GISAID sequences is 0
+omicron_t<-omicron_t%>%filter(cum_GISAID_seq!=0)
+  
+
+#Summarise by date (need to make this submission date)
+GISAID_omicron_summary<-omicron_t%>%group_by(submission_date)%>%
+  summarise(n_countries_GISAID = n(),
+            n_seq_GISAID = sum(replace_na(cum_GISAID_seq, 0)))
+write.csv(GISAID_omicron_summary, "../data/processed/GISAID_omicron_summary_by_day.csv")
+
+omicron_merge_country_date<-full_join(omicron_t, BNO_omicron_t, by = c("submission_date"= 
+"date", "code"= "code"))
+
+omicron_merge_country_date<-distinct(omicron_merge_country_date) # remove duplicate rows
+omicron_merge_country_date$max_omicron<- rep(0, nrow(omicron_merge_country_date))
+# Set max
+for (i in 1:nrow(omicron_merge_country_date)){
+  omicron_merge_country_date$max_omicron[i]<-max(c(omicron_merge_country_date$cum_GISAID_seq[i], omicron_merge_country_date$BNO_confirmed[i]), na.rm = TRUE)
+}
+
+
+# On each day, find total countries reporting omicron cases 
+# and total cases from max of both sources
+omicron_merged_by_day<-omicron_merge_country_date%>%group_by(submission_date)%>%
+  summarise(n_countries_all = n(),
+            n_cases_all = sum(max_omicron),
+            n_seq_GISAID = sum(cum_GISAID_seq, na.rm = TRUE))
+
+# Compute difference from yesterday
+today <- as.Date(substr(lubridate::now('EST'), 1, 10))
+omicron_daily_change<-omicron_merged_by_day%>%filter(submission_date>=today-1,
+                                                     submission_date<=today)%>%
+        mutate(daily_inc_countries = diff(n_countries_all),
+               daily_inc_GISAID_seq = diff(n_seq_GISAID),
+               daily_inc_all_cases = diff(n_cases_all))%>%
+          filter(submission_date == today)
+write.csv(omicron_daily_change, "../data/processed/omicron_daily_topline.csv")
+
 
