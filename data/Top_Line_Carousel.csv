@@ -1,7 +1,7 @@
-,Metric,Source,Total,Submission Date,Updated
-0,Countries with Omicron case(s),GISAID & BNO News,55,2021-12-08,"17:30 EST, Dec 7, 2021"
-1,Confirmed Omicron cases,GISAID & BNO News,1863,2021-12-08,"17:30 EST, Dec 7, 2021"
-2,Genomic Sequences submitted to GISAID,GISAID,1058,2021-12-08,"17:30 EST, Dec 7, 2021"
-3,Daily Increase of countries with Omicron case(s),GISAID & BNO News,1,2021-12-08,"17:30 EST, Dec 7, 2021"
-4,Daily Increase of Genomic Sequences submitted to GISAID,GISAID,218,2021-12-08,"17:30 EST, Dec 7, 2021"
-5,Daily Increase in Total Omicron Case(s),GISAID & BNO News,451,2021-12-08,"17:30 EST, Dec 7, 2021"
+,Metric,Source,Total,Submission Date,Updated,order
+1,Confirmed Omicron cases,GISAID & BNO News,1863,2021-12-08,"17:30 EST, Dec 7, 2021",1
+0,Countries with Omicron case(s),GISAID & BNO News,55,2021-12-08,"17:30 EST, Dec 7, 2021",2
+2,Genomic Sequences submitted to GISAID,GISAID,1058,2021-12-08,"17:30 EST, Dec 7, 2021",3
+5,Daily Increase in Total Omicron Case(s),GISAID & BNO News,451,2021-12-08,"17:30 EST, Dec 7, 2021",4
+3,Daily Increase of Countries with Omicron case(s),GISAID & BNO News,1,2021-12-08,"17:30 EST, Dec 7, 2021",5
+4,Daily Increase of Genomic Sequences submitted to GISAID,GISAID,218,2021-12-08,"17:30 EST, Dec 7, 2021",6
