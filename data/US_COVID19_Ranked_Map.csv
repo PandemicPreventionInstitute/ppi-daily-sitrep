@@ -1,0 +1,213 @@
+,State,variable,value
+0,California,Genomes shared,287218.0
+1,Texas,Genomes shared,138366.0
+2,Florida,Genomes shared,105141.0
+3,Colorado,Genomes shared,97017.0
+4,New York,Genomes shared,95143.0
+5,Massachusetts,Genomes shared,77824.0
+6,Minnesota,Genomes shared,77538.0
+7,Washington,Genomes shared,67141.0
+8,Michigan,Genomes shared,51769.0
+9,Arizona,Genomes shared,49204.0
+10,Illinois,Genomes shared,46593.0
+11,Utah,Genomes shared,46141.0
+12,North Carolina,Genomes shared,46122.0
+13,Wisconsin,Genomes shared,36972.0
+14,Maryland,Genomes shared,36442.0
+15,New Jersey,Genomes shared,36411.0
+16,Pennsylvania,Genomes shared,36209.0
+17,Georgia,Genomes shared,35487.0
+18,Indiana,Genomes shared,27392.0
+19,Oregon,Genomes shared,25941.0
+20,Ohio,Genomes shared,25860.0
+21,Tennessee,Genomes shared,24368.0
+22,Nevada,Genomes shared,24359.0
+23,Wyoming,Genomes shared,23253.0
+24,Virginia,Genomes shared,23151.0
+25,Connecticut,Genomes shared,20320.0
+26,Louisiana,Genomes shared,18783.0
+27,West Virginia,Genomes shared,18250.0
+28,New Mexico,Genomes shared,18221.0
+29,Missouri,Genomes shared,16972.0
+30,South Carolina,Genomes shared,15380.0
+31,Kentucky,Genomes shared,14465.0
+32,Alabama,Genomes shared,13684.0
+33,Kansas,Genomes shared,13366.0
+34,Idaho,Genomes shared,12947.0
+35,Nebraska,Genomes shared,12435.0
+36,Maine,Genomes shared,10725.0
+37,Arkansas,Genomes shared,10517.0
+38,Vermont,Genomes shared,10406.0
+39,Iowa,Genomes shared,10013.0
+40,Rhode Island,Genomes shared,9935.0
+41,North Dakota,Genomes shared,8538.0
+42,Alaska,Genomes shared,8533.0
+43,Montana,Genomes shared,8346.0
+44,Mississippi,Genomes shared,8111.0
+45,Delaware,Genomes shared,6697.0
+46,Hawaii,Genomes shared,6691.0
+47,New Hampshire,Genomes shared,6477.0
+48,District of Columbia,Genomes shared,5488.0
+49,Oklahoma,Genomes shared,3476.0
+50,South Dakota,Genomes shared,2877.0
+51,Virgin Islands,Genomes shared,304.0
+52,Puerto Rico,Genomes shared,
+53,California,Reported COVID-19 cases,5138995.0
+54,Texas,Reported COVID-19 cases,4366341.0
+55,Florida,Reported COVID-19 cases,3741058.0
+56,Colorado,Reported COVID-19 cases,
+57,New York,Reported COVID-19 cases,2806456.0
+58,Massachusetts,Reported COVID-19 cases,957889.0
+59,Minnesota,Reported COVID-19 cases,948490.0
+60,Washington,Reported COVID-19 cases,787244.0
+61,Michigan,Reported COVID-19 cases,1553790.0
+62,Arizona,Reported COVID-19 cases,1301597.0
+63,Illinois,Reported COVID-19 cases,1867912.0
+64,Utah,Reported COVID-19 cases,607954.0
+65,North Carolina,Reported COVID-19 cases,1558510.0
+66,Wisconsin,Reported COVID-19 cases,1012189.0
+67,Maryland,Reported COVID-19 cases,592679.0
+68,New Jersey,Reported COVID-19 cases,1283925.0
+69,Pennsylvania,Reported COVID-19 cases,1799753.0
+70,Georgia,Reported COVID-19 cases,1675453.0
+71,Indiana,Reported COVID-19 cases,1140151.0
+72,Oregon,Reported COVID-19 cases,398262.0
+73,Ohio,Reported COVID-19 cases,1752508.0
+74,Tennessee,Reported COVID-19 cases,1331703.0
+75,Nevada,Reported COVID-19 cases,462811.0
+76,Wyoming,Reported COVID-19 cases,112551.0
+77,Virginia,Reported COVID-19 cases,988147.0
+78,Connecticut,Reported COVID-19 cases,433464.0
+79,Louisiana,Reported COVID-19 cases,774913.0
+80,West Virginia,Reported COVID-19 cases,303173.0
+81,New Mexico,Reported COVID-19 cases,326713.0
+82,Missouri,Reported COVID-19 cases,935956.0
+83,South Carolina,Reported COVID-19 cases,926454.0
+84,Kentucky,Reported COVID-19 cases,805426.0
+85,Alabama,Reported COVID-19 cases,850096.0
+86,Kansas,Reported COVID-19 cases,483062.0
+87,Idaho,Reported COVID-19 cases,310661.0
+88,Nebraska,Reported COVID-19 cases,318657.0
+89,Maine,Reported COVID-19 cases,125373.0
+90,Arkansas,Reported COVID-19 cases,535450.0
+91,Vermont,Reported COVID-19 cases,53835.0
+92,Iowa,Reported COVID-19 cases,541033.0
+93,Rhode Island,Reported COVID-19 cases,198729.0
+94,North Dakota,Reported COVID-19 cases,165845.0
+95,Alaska,Reported COVID-19 cases,152977.0
+96,Montana,Reported COVID-19 cases,193277.0
+97,Mississippi,Reported COVID-19 cases,517925.0
+98,Delaware,Reported COVID-19 cases,157751.0
+99,Hawaii,Reported COVID-19 cases,88512.0
+100,New Hampshire,Reported COVID-19 cases,171538.0
+101,District of Columbia,Reported COVID-19 cases,68262.0
+102,Oklahoma,Reported COVID-19 cases,676890.0
+103,South Dakota,Reported COVID-19 cases,170416.0
+104,Virgin Islands,Reported COVID-19 cases,7582.0
+105,Puerto Rico,Reported COVID-19 cases,189495.0
+106,California,% of cases sequenced and shared,5.6
+107,Texas,% of cases sequenced and shared,3.2
+108,Florida,% of cases sequenced and shared,2.8
+109,Colorado,% of cases sequenced and shared,11.4
+110,New York,% of cases sequenced and shared,3.4
+111,Massachusetts,% of cases sequenced and shared,8.1
+112,Minnesota,% of cases sequenced and shared,8.2
+113,Washington,% of cases sequenced and shared,8.5
+114,Michigan,% of cases sequenced and shared,3.3
+115,Arizona,% of cases sequenced and shared,3.8
+116,Illinois,% of cases sequenced and shared,2.5
+117,Utah,% of cases sequenced and shared,7.6
+118,North Carolina,% of cases sequenced and shared,3.0
+119,Wisconsin,% of cases sequenced and shared,3.7
+120,Maryland,% of cases sequenced and shared,6.1
+121,New Jersey,% of cases sequenced and shared,2.8
+122,Pennsylvania,% of cases sequenced and shared,2.0
+123,Georgia,% of cases sequenced and shared,2.1
+124,Indiana,% of cases sequenced and shared,2.4
+125,Oregon,% of cases sequenced and shared,6.5
+126,Ohio,% of cases sequenced and shared,1.5
+127,Tennessee,% of cases sequenced and shared,1.8
+128,Nevada,% of cases sequenced and shared,5.3
+129,Wyoming,% of cases sequenced and shared,20.7
+130,Virginia,% of cases sequenced and shared,2.3
+131,Connecticut,% of cases sequenced and shared,4.7
+132,Louisiana,% of cases sequenced and shared,2.4
+133,West Virginia,% of cases sequenced and shared,6.0
+134,New Mexico,% of cases sequenced and shared,5.6
+135,Missouri,% of cases sequenced and shared,1.8
+136,South Carolina,% of cases sequenced and shared,1.7
+137,Kentucky,% of cases sequenced and shared,1.8
+138,Alabama,% of cases sequenced and shared,1.6
+139,Kansas,% of cases sequenced and shared,2.8
+140,Idaho,% of cases sequenced and shared,4.2
+141,Nebraska,% of cases sequenced and shared,3.9
+142,Maine,% of cases sequenced and shared,8.6
+143,Arkansas,% of cases sequenced and shared,2.0
+144,Vermont,% of cases sequenced and shared,19.3
+145,Iowa,% of cases sequenced and shared,1.9
+146,Rhode Island,% of cases sequenced and shared,5.0
+147,North Dakota,% of cases sequenced and shared,5.1
+148,Alaska,% of cases sequenced and shared,5.6
+149,Montana,% of cases sequenced and shared,4.3
+150,Mississippi,% of cases sequenced and shared,1.6
+151,Delaware,% of cases sequenced and shared,4.2
+152,Hawaii,% of cases sequenced and shared,7.6
+153,New Hampshire,% of cases sequenced and shared,3.8
+154,District of Columbia,% of cases sequenced and shared,8.0
+155,Oklahoma,% of cases sequenced and shared,0.5
+156,South Dakota,% of cases sequenced and shared,1.7
+157,Virgin Islands,% of cases sequenced and shared,4.0
+158,Puerto Rico,% of cases sequenced and shared,
+159,California,Median days to deposition,30.0
+160,Texas,Median days to deposition,40.0
+161,Florida,Median days to deposition,28.0
+162,Colorado,Median days to deposition,33.0
+163,New York,Median days to deposition,22.0
+164,Massachusetts,Median days to deposition,13.0
+165,Minnesota,Median days to deposition,22.0
+166,Washington,Median days to deposition,23.0
+167,Michigan,Median days to deposition,24.0
+168,Arizona,Median days to deposition,29.0
+169,Illinois,Median days to deposition,27.0
+170,Utah,Median days to deposition,41.0
+171,North Carolina,Median days to deposition,24.0
+172,Wisconsin,Median days to deposition,27.0
+173,Maryland,Median days to deposition,28.0
+174,New Jersey,Median days to deposition,22.0
+175,Pennsylvania,Median days to deposition,22.0
+176,Georgia,Median days to deposition,28.0
+177,Indiana,Median days to deposition,23.0
+178,Oregon,Median days to deposition,34.0
+179,Ohio,Median days to deposition,27.0
+180,Tennessee,Median days to deposition,28.0
+181,Nevada,Median days to deposition,23.0
+182,Wyoming,Median days to deposition,50.0
+183,Virginia,Median days to deposition,25.0
+184,Connecticut,Median days to deposition,20.0
+185,Louisiana,Median days to deposition,31.0
+186,West Virginia,Median days to deposition,29.0
+187,New Mexico,Median days to deposition,26.0
+188,Missouri,Median days to deposition,26.0
+189,South Carolina,Median days to deposition,28.0
+190,Kentucky,Median days to deposition,27.0
+191,Alabama,Median days to deposition,31.0
+192,Kansas,Median days to deposition,16.0
+193,Idaho,Median days to deposition,30.0
+194,Nebraska,Median days to deposition,22.0
+195,Maine,Median days to deposition,26.0
+196,Arkansas,Median days to deposition,27.0
+197,Vermont,Median days to deposition,11.0
+198,Iowa,Median days to deposition,24.0
+199,Rhode Island,Median days to deposition,21.0
+200,North Dakota,Median days to deposition,29.0
+201,Alaska,Median days to deposition,22.0
+202,Montana,Median days to deposition,25.0
+203,Mississippi,Median days to deposition,20.0
+204,Delaware,Median days to deposition,31.0
+205,Hawaii,Median days to deposition,33.0
+206,New Hampshire,Median days to deposition,20.0
+207,District of Columbia,Median days to deposition,25.0
+208,Oklahoma,Median days to deposition,29.0
+209,South Dakota,Median days to deposition,30.0
+210,Virgin Islands,Median days to deposition,31.0
+211,Puerto Rico,Median days to deposition,
