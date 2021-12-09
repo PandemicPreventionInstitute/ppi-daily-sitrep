@@ -1,0 +1,44 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(tidyverse)
+library(lubridate)
+
+```
+
+
+
+```{r}
+df <- read_csv('../data/raw/global_06112021_admin2.csv')
+```
+
+```{r}
+df <- df %>% 
+  mutate(week_start = ymd(str_split(Group.1, pattern = '_')[[1]][1]),
+         week_end = ymd(str_split(Group.1, pattern = '_')[[1]][2]),
+         i = as.integer(str_split(Group.2, ' ')[[1]][1]),
+         j = as.integer(str_split(Group.2, ' ')[[1]][2])) %>% 
+  select(week_start, week_end, i, j, x) %>% 
+  rename(w = x)
+```
+
+
+```{r}
+unique_i = levels(factor(df$i))
+
+df %>% 
+  filter(i == j,
+         i %in% sample(unique_i, 100))
+
+
+```
+
+
+
+
+
+

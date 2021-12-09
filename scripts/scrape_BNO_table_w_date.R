@@ -1,10 +1,15 @@
 # This file scrapes the BNO table at https://bnonews.com/index.php/2021/11/omicron-tracker/
 
-#set working dir
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# set working dir
+getwd()
 
 # Libraries ---------------------------------------------------------------
 rm(list = ls())
+install.packages("rvest", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("tidyverse", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("countrycode", dependencies=TRUE, repos='http://cran.us.r-project.org')
+
 library(rvest)
 library(tidyverse)
 library(lubridate)
@@ -67,13 +72,13 @@ USA_table<-USA_table%>%
 
 date <- str_replace(substr(lubridate::now(), 1, 13), ' ', '-')
 
-write_csv(clean_table, paste0('../data/raw/daily_BNO_file/', date, '.csv'))
-write_csv(USA_table, paste0('../data/raw/daily_BNO_USA_file/', date, '.csv'))
+write_csv(clean_table, paste0('/mnt/data/raw/daily_BNO_file/', date, '.csv'))
+# write_csv(USA_table, paste0('/mnt/data/raw/daily_BNO_USA_file/', data, '.csv'))
 
 # Save updated master file ------------------------------------------------
 
-master <- read_csv('../data/raw/BNO_scraped_master.csv')
+master <- read_csv('/mnt/data/raw/BNO_scraped_master.csv')
 
 master %>% 
     rbind(clean_table) %>% 
-    write_csv('../data/raw/BNO_scraped_master.csv')
+    write_csv('/mnt/data/raw/BNO_scraped_master.csv')
