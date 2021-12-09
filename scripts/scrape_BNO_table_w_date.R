@@ -68,7 +68,7 @@ USA_table<-USA_table%>%
 date <- str_replace(substr(lubridate::now(), 1, 13), ' ', '-')
 
 write_csv(clean_table, paste0('../data/raw/daily_BNO_file/', date, '.csv'))
-write_csv(USA_table, paste0('../data/raw/daily_BNO_USA_file/', data, '.csv'))
+write_csv(USA_table, paste0('../data/raw/daily_BNO_USA_file/', date, '.csv'))
 
 # Save updated master file ------------------------------------------------
 

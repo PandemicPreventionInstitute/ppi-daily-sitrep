@@ -29,7 +29,7 @@ library(dplyr) # data wrangling
 rm(list = ls())
 today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
-today<-"2021-12-08-08"
+#today<-"2021-12-08-08"
 
 
 ## Set local file path names
