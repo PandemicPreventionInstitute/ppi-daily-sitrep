@@ -1,19 +1,17 @@
 # This file summarizes the GISAID metadata to country-day counts. It currently has no 
 # filtering, except for ensuring human infection and double checking that lineage is Omicron
 rm(list = ls())
-#get working dir
+# get working dir
 getwd()
 
 # Libraries ---------------------------------------------------------------
-install.packages("tidyverse", dependencies=TRUE, repos='http://cran.us.r-project.org')
-install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("janitor", dependencies=TRUE, repos='http://cran.us.r-project.org')
-install.packages("countrycode", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("tidyverse", dependencies=TRUE, repos='http://cran.us.r-project.org')
 
 library(tidyverse)
 library(lubridate)
 library(janitor)
-library(countrycode)
 
 # Data --------------------------------------------------------------------
 

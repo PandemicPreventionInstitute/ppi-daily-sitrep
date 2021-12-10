@@ -366,7 +366,7 @@ def add_greek_cols(df):
 
 def main(args_list=None):
 
-    gisaid_df = pd.read_csv('/domino/datasets/local/metadata/metadata.tsv', sep='\t')
+    gisaid_df = pd.read_csv('/domino/datasets/local/snapshots/gisaid_data/metadata.tsv', sep='\t')
 
     print('Loading and filtering GISAID data...')
     gisaid_df = process_raw_metadata(gisaid_df)

@@ -29,18 +29,18 @@ library(dplyr) # data wrangling
 rm(list = ls())
 today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
-
+today<-"2021-12-07-08"
 
 
 
 ## Set local file path names
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
-GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
-OMICRON_DAILY_CASES<-paste0('/mnt/data/processed/metadata_summarized.csv')
-BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
-BNO_CASES_BY_COUNTRY_DATE<-'/mnt/data/raw/BNO_scraped_master.csv'
+GISAID_DAILY_PATH<-'../data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
+OMICRON_DAILY_CASES<-paste0('../data/processed/metadata_summarized.csv')
+BNO_CASES_BY_COUNTRY_PATH<-paste0('../data/raw/daily_BNO_file/', today,'.csv')
+BNO_CASES_BY_COUNTRY_DATE<-'../data/raw/BNO_scraped_master.csv'
 
-LAST_DATA_PULL_DATE<-as.Date("2021-11-29") #substr(lubridate::now('EST'), 1, 10) # enter here "YYYY-10-18"
+LAST_DATA_PULL_DATE<-as.Date("2021-12-06") #substr(lubridate::now('EST'), 1, 10) # enter here "YYYY-10-18"
 TIME_WINDOW <- 90
 TIME_WINDOW_WEEK<- 6 
 TIME_WINDOW_MAX_PREV<-30
@@ -216,7 +216,7 @@ gisaid_t <- gisaid_t %>%filter(collection_date>=(LAST_DATA_PULL_DATE -60) &
     pct_omicron_7davg = gisaid_md_seq_omicron_7davg/seq_7davg
   )
 
-write.csv(gisaid_t, "/mnt/data/gisaid_t.csv")
+write.csv(gisaid_t, "../data/gisaid_t.csv")
 
 
 
@@ -241,7 +241,7 @@ gisaid_recent_data<-gisaid_recent_data%>%
 cases_in_last_7_days<-gisaid_t%>%filter(collection_date>=(LAST_DATA_PULL_DATE - TIME_WINDOW_WEEK) & 
                                           collection_date<=LAST_DATA_PULL_DATE)%>%
   group_by(country_code)%>%
-  summarise(cases_per_100k_last_7_days = 100000*sum(owid_new_cases)/max(owid_population, na.rm = TRUE))
+  summarise(cases_per_100k_last_7_days = round(100000*sum(owid_new_cases)/max(owid_population, na.rm = TRUE), 1))
 
 # join with 30 day summary 
 gisaid_recent_data<-left_join(gisaid_recent_data, cases_in_last_7_days, by = "country_code")
@@ -273,7 +273,11 @@ BNO_omicron<-BNO_omicron%>%
 omicron_t<-read.csv(OMICRON_DAILY_CASES)
 omicron_seq<-omicron_t%>%group_by(code)%>%
   summarise(cum_omicron_seq = sum(n, na.rm = TRUE))
-omicron_seq<-omicron_seq%>%select(code, cum_omicron_seq)
+
+GISAID_print<-omicron_seq%>%
+  mutate(Country = countrycode(code, origin = 'iso3c', destination = 'country.name'))%>%
+  rename(Count = cum_omicron_seq)%>%select(Country, Count)
+write.csv(GISAID_print, "../data/processed/GISAID_table.csv")
 
 # combine the two tables
 omicron_seq<-full_join(omicron_seq, BNO_omicron, by = "code")
@@ -288,6 +292,13 @@ omicron_seq$max_omicron[omicron_seq$max_omicron== -Inf]<-NA
 
 omicron_seq<- omicron_seq%>%
   mutate(country_name = countrycode(code, origin = 'iso3c', destination = 'country.name'))
+# rename columns
+omicron_seq_print<-omicron_seq%>%rename(
+  Country = country_name,
+  Confirmed = BNO_confirmed,
+  Probable = BNO_probable, 
+  GISAID = cum_omicron_seq
+)%>%select(Country, Confirmed, Probable, GISAID)
 
 
 # join GISAID data with omicron sequence counts
@@ -319,17 +330,17 @@ gisaid_summary_df$max_prevalence_variant_pct_flags[gisaid_summary_df$cum_tpr<0.0
 
 gisaid_summary_df$max_prevalence_variant_pct_w_pct<-gisaid_summary_df$max_prevalence_variant_pct
 gisaid_summary_df$max_prevalence_variant_pct_w_pct<-paste0(gisaid_summary_df$max_prevalence_variant_pct, '%')
-gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$max_prevalence_variant_pct<=0.01]<-'<0.01'
+gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$max_prevalence_variant_pct<=0.01]<-'<0.01%'
 gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$max_prevalence_variant_pct>=95]<-'not estimated, insufficient recent sequencing'
 gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$cum_tpr<0.002 & gisaid_summary_df$max_prevalence_variant_pct>=95]<-'minimal recent COVID cases'
 
 
 # Write country-level data to csvs
-write.csv(omicron_seq, "/mnt/data/processed/omicron_seq.csv")
-write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
+write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv")
+write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv")
 
 #Country-date level data 
-BNO_omicron_t<-read.csv(BNO_CASES_BY_COUNTRY_DATE)
+BNO_omicron_t<-read_csv(BNO_CASES_BY_COUNTRY_DATE)
 BNO_omicron_t<-unique(BNO_omicron_t)
 BNO_omicron_t<-BNO_omicron_t%>%drop_na(confirmed)
 BNO_omicron_t<-BNO_omicron_t%>%rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
@@ -344,7 +355,7 @@ BNO_omicron_t<-BNO_omicron_t%>%group_by(code, date)%>%
 BNO_omicron_summary<-BNO_omicron_t%>%group_by(date)%>%
   summarise(n_countries_BNO = n(),
             n_case_BNO = sum(BNO_confirmed, na.rm = TRUE))
-write.csv(BNO_omicron_summary, "/mnt/data/processed/BNO_summary_by_day.csv")
+write.csv(BNO_omicron_summary, "../data/processed/BNO_summary_by_day.csv")
 
 # Do the same with the GISAID omicron sequences
 omicron_t<-read.csv(OMICRON_DAILY_CASES)
@@ -365,7 +376,7 @@ omicron_t<-omicron_t%>%filter(cum_GISAID_seq!=0)
 GISAID_omicron_summary<-omicron_t%>%group_by(submission_date)%>%
   summarise(n_countries_GISAID = n(),
             n_seq_GISAID = sum(replace_na(cum_GISAID_seq, 0)))
-write.csv(GISAID_omicron_summary, "/mnt/data/processed/GISAID_omicron_summary_by_day.csv")
+write.csv(GISAID_omicron_summary, "../data/processed/GISAID_omicron_summary_by_day.csv")
 
 omicron_merge_country_date<-full_join(omicron_t, BNO_omicron_t, by = c("submission_date"= 
 "date", "code"= "code"))
@@ -393,6 +404,6 @@ omicron_daily_change<-omicron_merged_by_day%>%filter(submission_date>=today-1,
                daily_inc_GISAID_seq = diff(n_seq_GISAID),
                daily_inc_all_cases = diff(n_cases_all))%>%
           filter(submission_date == today)
-write.csv(omicron_daily_change, "/mnt/data/processed/omicron_daily_topline.csv")
+write.csv(omicron_daily_change, "../data/processed/omicron_daily_topline.csv")
 
 
