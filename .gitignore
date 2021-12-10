@@ -3,4 +3,4 @@ data/processed/*
 data/raw/*
 
 # Github Update .sh
-# scripts/git_update.sh
+scripts/git_update.sh
