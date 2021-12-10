@@ -1,13 +1,10 @@
 # This file summarizes the GISAID metadata to country-day counts. It currently has no 
 # filtering, except for ensuring human infection and double checking that lineage is Omicron
 rm(list = ls())
-# get working dir
-getwd()
+#set working dir
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Libraries ---------------------------------------------------------------
-install.packages("janitor", dependencies=TRUE, repos='http://cran.us.r-project.org')
-install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
-install.packages("tidyverse", dependencies=TRUE, repos='http://cran.us.r-project.org')
 
 library(tidyverse)
 library(lubridate)
@@ -19,7 +16,10 @@ today <- substr(lubridate::now('GMT'), 1, 13)
 today <- chartr(old = '-', new = '_', today)
 today <- chartr(old = ' ', new = '_', today)
 
-path <- paste0('/mnt/data/raw/gisaid_hcov-19_', today, '.tsv')
+# Domino path
+path <- paste0('mnt/data/raw/gisaid_hcov-19_', today, '.tsv')
+# local path
+#path <- paste0('../data/raw/gisaid_hcov-19_', today, '.tsv')
  
 
 x <- read_delim(path, delim = '\t') %>% 
@@ -42,5 +42,9 @@ processed <- x %>%
 
 # Save data ---------------------------------------------------------------
 
+# local path
+# write_csv(processed,'../data/processed/metadata_summarized.csv')
+
+# Domino path
 write_csv(processed,'/mnt/data/processed/metadata_summarized.csv')
   

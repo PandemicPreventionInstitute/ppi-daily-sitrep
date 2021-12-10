@@ -3,7 +3,7 @@
 # and were submitted to GISAID prior to the index date, the same metric but 
 # lagged the days, and the ratio of these two,
 
-getwd()
+#getwd()
 
 # Libraries ---------------------------------------------------------------
 
@@ -13,8 +13,10 @@ library(zoo)
 
 # Load data ---------------------------------------------------------------
 
-
-df <- read_csv('../data/processed/inital_clean_metadata.csv',
+#local path
+#df <- read_csv('../data/processed/inital_clean_metadata.csv',
+# Domino path
+df <- read_csv('/mnt/data/processed/inital_clean_metadata.csv',
                col_types = 'iTTlcc') %>% 
   filter(collect_date > ymd('2020-1-1'))
   
@@ -35,7 +37,7 @@ for (i in 1:length(date_seq)){
   day_iter = ymd(date_seq[i])
   
   results[i] <-  df %>% 
-    filter(collect_date >= day_iter - days(30),
+    filter(collect_date >= day_iter - days(29),
            collect_date <= day_iter,
            submit_date <= day_iter) %>% 
     nrow()
@@ -55,5 +57,9 @@ combined_df <- combined_df %>%
 
 # Save time series --------------------------------------------------------
 
+# Domino path
+write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
+
+# local path
 write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
 

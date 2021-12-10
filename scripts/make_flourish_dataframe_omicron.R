@@ -11,7 +11,7 @@
 #install.packages("janitor")
 #install.packages("countrycode")
 #install.packages("lubridate")
-#install.packages("tsoutliers")
+install.packages("scales")
  
 library(tidyverse) # data wrangling
 library(tibble) # data wrangling
@@ -32,16 +32,26 @@ today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
 #today<-"2021-12-10-08"
 
-
-## Set local file path names
+## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
-GISAID_DAILY_PATH<-'../data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
-OMICRON_DAILY_CASES<-paste0('../data/processed/metadata_summarized.csv')
-BNO_CASES_BY_COUNTRY_PATH<-paste0('../data/raw/daily_BNO_file/', today,'.csv')
-BNO_CASES_BY_COUNTRY_DATE<-'../data/raw/BNO_scraped_master.csv'
-SEQUENCES_LAST_30_DAYS<-'../data/processed/sequences_last_30_days.csv'
-SHAPEFILES_FOR_FLOURISH_PATH <- '../data/raw/geometric_country_code_name_master_file.txt'
-LAT_LONG_FOR_FLOURISH_PATH<-'../data/raw/country_lat_long_names.csv'
+GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
+OMICRON_DAILY_CASES<-paste0('/mnt/data/processed/metadata_summarized.csv')
+BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
+BNO_CASES_BY_COUNTRY_DATE<-'/mnt/data/raw/BNO_scraped_master.csv'
+SEQUENCES_LAST_30_DAYS<-'/mnt/data/processed/sequences_last_30_days.csv'
+SHAPEFILES_FOR_FLOURISH_PATH <- '/mnt/data/raw/geometric_country_code_name_master_file.txt'
+LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/raw/country_lat_long_names.csv'
+
+
+# ## Set local file path names
+# ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
+# GISAID_DAILY_PATH<-'../data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
+# OMICRON_DAILY_CASES<-paste0('../data/processed/metadata_summarized.csv')
+# BNO_CASES_BY_COUNTRY_PATH<-paste0('../data/raw/daily_BNO_file/', today,'.csv')
+# BNO_CASES_BY_COUNTRY_DATE<-'../data/raw/BNO_scraped_master.csv'
+# SEQUENCES_LAST_30_DAYS<-'../data/processed/sequences_last_30_days.csv'
+# SHAPEFILES_FOR_FLOURISH_PATH <- '../data/raw/geometric_country_code_name_master_file.txt'
+# LAT_LONG_FOR_FLOURISH_PATH<-'../data/raw/country_lat_long_names.csv'
 
 LAST_DATA_PULL_DATE<-as.Date(substr(lubridate::now('EST'), 1, 10))-days(1) # Make this based off of yesterday!
 TIME_WINDOW <- 29 # since we will include the reference data
@@ -213,7 +223,7 @@ gisaid_t <- gisaid_t %>%
 # filter to last 60 days 
 gisaid_t <- gisaid_t %>%filter(collection_date>=(LAST_DATA_PULL_DATE -59) & 
                                  collection_date<= LAST_DATA_PULL_DATE)
-write.csv(gisaid_t, "../data/gisaid_t.csv")
+#write.csv(gisaid_t, "../data/gisaid_t.csv")
 
 
 
@@ -334,7 +344,10 @@ gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$cum_tpr<0.0
 
 
 # Write country-level data to csvs
-write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv")
+# local path
+#write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv")
+#Domino path
+write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
 
 # Load and join shapefile for flourish
 shapefile <- read_delim(SHAPEFILES_FOR_FLOURISH_PATH, delim = "\t") %>%
@@ -358,8 +371,10 @@ gisaid_summary_df<-gisaid_summary_df%>% select(geometry,latitude, longitude, Nam
                                                max_omicron_seq_NA, cases_per_100k_last_7_days)
 gisaid_summary_df<-distinct(gisaid_summary_df)
 
-
-write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv")
+# Domino path
+write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
+# local path
+#write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv")
 
 
 
@@ -382,7 +397,7 @@ BNO_omicron_t<-BNO_omicron_t%>%group_by(code, date)%>%
 BNO_global_t<-BNO_omicron_t%>%group_by(date)%>%
   summarise(n_countries_BNO = n(),
             n_case_BNO = sum(BNO_confirmed, na.rm = TRUE))
-write.csv(BNO_global_t, "../data/processed/BNO_global_t.csv")
+#write.csv(BNO_global_t, "../data/processed/BNO_global_t.csv")
 
 # Make omicron sequences from GISAID a global time series
 omicron_t<-read.csv(OMICRON_DAILY_CASES)
@@ -403,7 +418,7 @@ omicron_t<-omicron_t%>%filter(cum_GISAID_seq!=0)
 GISAID_omicron_t<-omicron_t%>%group_by(submission_date)%>%
   summarise(n_countries_GISAID = n(),
             n_seq_GISAID = sum(replace_na(cum_GISAID_seq, 0)))
-write.csv(GISAID_omicron_t, "../data/processed/GISAID_omicron_t.csv")
+#write.csv(GISAID_omicron_t, "../data/processed/GISAID_omicron_t.csv")
 
 omicron_merge_country_date<-full_join(omicron_t, BNO_omicron_t, by = c("submission_date"= 
 "date", "code"= "code"))
@@ -455,7 +470,7 @@ global_t<-full_join(omicron_global_t,gisaid_global_t, by = c("submission_date" =
 global_t<-global_t%>%arrange((submission_date))
 global_t<-left_join(global_t, seq_last_30_days, by = c("submission_date" = "date"))
 global_t<-global_t%>%rename(n_omicron_seq = n_seq_GISAID, n_omicron_cases = n_cases_all)
-write.csv(global_t, '../data/processed/all_metrics_global_t.csv')
+#write.csv(global_t, '../data/processed/all_metrics_global_t.csv')
 
 
 
@@ -565,8 +580,10 @@ topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
   rename(Value = n, `Change (#)` = change, `Change (%)`= pctchange, `Change from` = change_from)
 
 
-
-write.csv(topline_df, '../data/processed/topline_df.csv')
+# Domino path
+write.csv(topline_df, '/mnt/data/processed/topline_df.csv')
+# local path
+#write.csv(topline_df, '../data/processed/topline_df.csv')
 
 
 
