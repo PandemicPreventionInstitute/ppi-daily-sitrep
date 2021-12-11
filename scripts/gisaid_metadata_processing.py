@@ -238,7 +238,10 @@ def pivot_merged_df(merged_df):
 
     return country_variants_pivot
 
-def add_regions(merged_df, region_path='../data/raw/who_regions (2).csv'):
+# local path
+# def add_regions(merged_df, region_path='../data/raw/who_regions (2).csv'):
+# domino path
+def add_regions(merged_df, region_path='/mnt/data/raw/who_regions (2).csv'):
     who_regions = pd.read_csv(region_path)
     merged_df = pd.merge(merged_df, who_regions[['Entity','WHO region']], how='left', left_on=['owid_location'], right_on=['Entity'])
     merged_df.rename(columns={'WHO region': 'who_region'}, inplace=True)
@@ -366,10 +369,10 @@ def add_greek_cols(df):
 
 def main(args_list=None):
 
-    # local
+    # local path
     # gisaid_df = pd.read_csv('../data/raw/metadata.tsv', sep='\t')
 
-    # domino
+    # domino path
     gisaid_df = pd.read_csv('/domino/datasets/local/metadata/metadata.tsv', sep='\t')
 
     print('Loading and filtering GISAID data...')
@@ -378,7 +381,12 @@ def main(args_list=None):
     print('Done, %d sequences' % gisaid_df.shape[0])
     
     gisaid_df_subset = gisaid_df[['collect_date', 'submit_date', 'any_abnormal', 'country', 'Pango lineage']]
-    gisaid_df_subset.to_csv('../data/processed/inital_clean_metadata.csv')
+
+    # local path
+    # gisaid_df_subset.to_csv('../data/processed/inital_clean_metadata.csv')
+
+    # domino path
+    gisaid_df_subset.to_csv('/mnt/data/processed/inital_clean_metadata.csv')
 
     print('Aggregating GISAID data...')
     print('Break out key pango lineages into columns')
@@ -409,7 +417,10 @@ def main(args_list=None):
 
     max_gisaid_date = gisaid_df.submit_date.max()
     merged_pivoted_df_latest = merged_pivoted_df.loc[(merged_pivoted_df.owid_date <= max_gisaid_date)]
-    merged_pivoted_df_latest.to_csv('../data/processed/gisaid_cleaning_output.csv')
+    # local path
+    # merged_pivoted_df_latest.to_csv('../data/processed/gisaid_cleaning_output.csv')
+    # domino path
+    merged_pivoted_df_latest.to_csv('/mnt/data/processed/gisaid_cleaning_output.csv')
 
 if __name__ == "__main__":
     main()
