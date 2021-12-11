@@ -45,7 +45,7 @@ greek_dict = {
     'who_beta' :   ['B.1.351', 'B.1.351.2', 'B.1.351.3', 'B.1.351.4', 'B.1.351.5'],
     'who_gamma' :  ['P.1', 'P.1.*'],
     'who_delta':   ['B.1.617.2', 'AY.*'],
-    'who_omicron': ['B.1.1.529'],
+    'who_omicron': ['B.1.1.529', 'B.1.1.529.*', 'BA.*'],
     'who_allvois': ['C.37', 'C.37.1', # lambda
                     'B.1.621', 'B.1.621.1', # mu
                     ],
@@ -195,7 +195,7 @@ def pivot_merged_df(merged_df):
     merged_df['key_lineages'] = merged_df['key_lineages'].fillna('placeholder_dropmeplease')
     
     country_variants_pivot = merged_df.pivot_table(
-        values=['accession_id'], aggfunc='sum', dropna=False, index=['collect_date','country'],
+        values=['accession_id'], aggfunc='sum', dropna=True, index=['collect_date','country'],
         columns=['key_lineages']).droplevel(axis=1, level=0).reset_index()
 
     # reorganize col order
@@ -366,12 +366,19 @@ def add_greek_cols(df):
 
 def main(args_list=None):
 
-    gisaid_df = pd.read_csv('/domino/datasets/local/snapshots/gisaid_data/metadata.tsv', sep='\t')
+    # local
+    # gisaid_df = pd.read_csv('../data/raw/metadata.tsv', sep='\t')
+
+    # domino
+    gisaid_df = pd.read_csv('/domino/datasets/local/metadata/metadata.tsv', sep='\t')
 
     print('Loading and filtering GISAID data...')
     gisaid_df = process_raw_metadata(gisaid_df)
     gisaid_cols = list(gisaid_df.columns)
     print('Done, %d sequences' % gisaid_df.shape[0])
+    
+    gisaid_df_subset = gisaid_df[['collect_date', 'submit_date', 'any_abnormal', 'country', 'Pango lineage']]
+    gisaid_df_subset.to_csv('../data/processed/inital_clean_metadata.csv')
 
     print('Aggregating GISAID data...')
     print('Break out key pango lineages into columns')
@@ -397,7 +404,7 @@ def main(args_list=None):
     merged_pivoted_df = pd.merge(merged_pivoted_df, sumstats_df, how='left')
     print('Final data file cleanup...')
     merged_pivoted_df = cleanup_columns(merged_pivoted_df, gisaid_cols)
-    print(f'Locations without OWID join and how many sequences:\n{merged_pivoted_df[(merged_pivoted_df["owid_location"].isna())&(merged_pivoted_df["aggregate_location"].isna())].groupby("gisaid_country").sum()["All lineages"]}')
+    #print(f'Locations without OWID join and how many sequences:\n{merged_pivoted_df[(merged_pivoted_df["owid_location"].isna())&(merged_pivoted_df["aggregate_location"].isna())].groupby("gisaid_country").sum()["All lineages"]}')
     print('Done.')
 
     max_gisaid_date = gisaid_df.submit_date.max()

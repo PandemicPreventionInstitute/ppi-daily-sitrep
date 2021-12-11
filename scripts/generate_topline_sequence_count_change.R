@@ -6,6 +6,9 @@
 #getwd()
 
 # Libraries ---------------------------------------------------------------
+install.packages("tidyverse", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("zoo", dependencies=TRUE, repos='http://cran.us.r-project.org')
 
 library(tidyverse)
 library(lubridate)
@@ -61,5 +64,5 @@ combined_df <- combined_df %>%
 write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
 
 # local path
-write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
+# write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
 
