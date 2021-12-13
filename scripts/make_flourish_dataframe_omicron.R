@@ -282,7 +282,7 @@ omicron_seq<-omicron_t%>%group_by(code)%>%
 GISAID_print<-omicron_seq%>%
   mutate(Country = countrycode(code, origin = 'iso3c', destination = 'country.name'))%>%
   rename(Count = cum_omicron_seq)%>%select(Country, Count)
-write.csv(GISAID_print, "../data/processed/GISAID_table.csv")
+#write.csv(GISAID_print, "../data/processed/GISAID_table.csv")
 
 # combine the two tables
 omicron_seq<-full_join(omicron_seq, BNO_omicron, by = "code")
