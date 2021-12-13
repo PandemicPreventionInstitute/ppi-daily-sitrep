@@ -64,8 +64,8 @@ clean_table<-clean_table%>%mutate(
 # Add time stamp to country table and USA table
 clean_table<-clean_table%>% 
     mutate(timestamp = lubridate::now())
-USA_table<-USA_table%>% 
-    mutate(timestamp = lubridate::now())
+# USA_table<-USA_table%>% 
+    #mutate(timestamp = lubridate::now())
 
 # Save daily tibble -------------------------------------------------------------
 
@@ -73,7 +73,7 @@ date <- str_replace(substr(lubridate::now(), 1, 13), ' ', '-')
 
 # Domino path
 write_csv(clean_table, paste0('/mnt/data/raw/daily_BNO_file/', date, '.csv'))
-write_csv(USA_table, paste0('/mnt/data/raw/daily_BNO_USA_file/', date, '.csv'))
+# write_csv(USA_table, paste0('/mnt/data/raw/daily_BNO_USA_file/', date, '.csv'))
 
 # local path
 # write_csv(clean_table, paste0('../data/raw/daily_BNO_file/', date, '.csv'))
