@@ -47,8 +47,8 @@ OMICRON_DAILY_CASES<-paste0('/mnt/data/processed/metadata_summarized.csv')
 BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
 BNO_CASES_BY_COUNTRY_DATE<-'/mnt/data/raw/BNO_scraped_master.csv'
 SEQUENCES_LAST_30_DAYS<-'/mnt/data/processed/sequences_last_30_days.csv'
-SHAPEFILES_FOR_FLOURISH_PATH <- '/mnt/data/raw/geometric_country_code_name_master_file.txt'
-LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/raw/country_lat_long_names.csv'
+SHAPEFILES_FOR_FLOURISH_PATH <- '/mnt/data/static/geometric_country_code_name_master_file.txt'
+LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/static/country_lat_long_names.csv'
 
 
 # ## Set local file path names
@@ -58,8 +58,8 @@ LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/raw/country_lat_long_names.csv'
 # BNO_CASES_BY_COUNTRY_PATH<-paste0('../data/raw/daily_BNO_file/', today,'.csv')
 # BNO_CASES_BY_COUNTRY_DATE<-'../data/raw/BNO_scraped_master.csv'
 # SEQUENCES_LAST_30_DAYS<-'../data/processed/sequences_last_30_days.csv'
-# SHAPEFILES_FOR_FLOURISH_PATH <- '../data/raw/geometric_country_code_name_master_file.txt'
-# LAT_LONG_FOR_FLOURISH_PATH<-'../data/raw/country_lat_long_names.csv'
+# SHAPEFILES_FOR_FLOURISH_PATH <- '../data/static/geometric_country_code_name_master_file.txt'
+# LAT_LONG_FOR_FLOURISH_PATH<-'../data/static/country_lat_long_names.csv'
 
 LAST_DATA_PULL_DATE<-as.Date(substr(lubridate::now('EST'), 1, 10))-days(1) # Make this based off of yesterday!
 TIME_WINDOW <- 29 # since we will include the reference data
