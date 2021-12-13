@@ -61,13 +61,23 @@ USA_table<-USA_table%>%
 
 date <- str_replace(substr(lubridate::now(), 1, 13), ' ', '-')
 
-write_csv(clean_table, paste0('../data/raw/daily_BNO_file/', date, '.csv'))
-write_csv(USA_table, paste0('../data/raw/daily_BNO_USA_file/', date, '.csv'))
+# Domino path
+write_csv(clean_table, paste0('/mnt/data/raw/daily_BNO_file/', date, '.csv'))
+write_csv(USA_table, paste0('/mnt/data/raw/daily_BNO_USA_file/', date, '.csv'))
+
+# local path
+# write_csv(clean_table, paste0('../data/raw/daily_BNO_file/', date, '.csv'))
+# write_csv(USA_table, paste0('../data/raw/daily_BNO_USA_file/', date, '.csv'))
 
 # Save updated master file ------------------------------------------------
 
-master <- read_csv('../data/raw/BNO_scraped_master.csv')
+# Domino path
+master <- read_csv('/mnt/data/raw/BNO_scraped_master.csv')
+
+# # local path
+# master <- read_csv('../data/raw/BNO_scraped_master.csv')
 
 master %>% 
     rbind(clean_table) %>% 
-    write_csv('../data/raw/BNO_scraped_master.csv')
+    #write_csv('../data/raw/BNO_scraped_master.csv') # local path
+    write_csv('/mnt/data/raw/BNO_scraped_master.csv') # Domino path
