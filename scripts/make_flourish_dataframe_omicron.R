@@ -6,12 +6,19 @@
 
 # This script takes in the GISAID metadata and OWID and find data and finds the recent cases, tests, and sequences
 # It will be used to put the Omicron sequencing data in context
+#---- Libraries----------
 
-
-#install.packages("janitor")
-#install.packages("countrycode")
-#install.packages("lubridate")
-install.packages("scales")
+install.packages(tidyverse, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages(tibble, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages(countrycode, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages(lubridate, dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages(readxl, dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages(zoo, dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages(R.utils, dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages(stringr, dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages(tsoutliers, dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages(dplyr, dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages(scales, dependencies=TRUE, repos='http://cran.us.r-project.org')
  
 library(tidyverse) # data wrangling
 library(tibble) # data wrangling
@@ -30,7 +37,7 @@ library(scales) # comma formatting
 rm(list = ls())
 today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
-#today<-"2021-12-10-08"
+#
 
 ## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")

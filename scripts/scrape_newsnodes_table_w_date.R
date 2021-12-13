@@ -1,10 +1,20 @@
 # This file scrapes the BNO table at https://bnonews.com/index.php/2021/11/omicron-tracker/
 
-#set working dir
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# local set working dir
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+
+# Domino wd
+getwd()
 
 # Libraries ---------------------------------------------------------------
 rm(list = ls())
+
+install.packages(rvest, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages(tidyverse, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages(lubridate, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages(countrycode, dependencies=TRUE, repos='http://cran.us.r-project.org')
+
 library(rvest)
 library(tidyverse)
 library(lubridate)
