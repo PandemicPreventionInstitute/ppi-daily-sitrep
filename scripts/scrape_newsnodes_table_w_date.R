@@ -10,10 +10,10 @@ getwd()
 # Libraries ---------------------------------------------------------------
 rm(list = ls())
 
-install.packages(rvest, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-install.packages(tidyverse, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-install.packages(lubridate, dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-install.packages(countrycode, dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("rvest", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("lubridate", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("countrycode", dependencies=TRUE, repos='http://cran.us.r-project.org')
 
 library(rvest)
 library(tidyverse)
