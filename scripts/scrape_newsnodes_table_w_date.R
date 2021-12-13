@@ -53,8 +53,8 @@ clean_table <- tibble(location = table_as_matrix[,1],
 clean_table$location[clean_table$location=='Réunion (France)']<-'Réunion'
 
 # Split up the US states vs countries
-index_USA<-which(clean_table$location == 'TOTAL CASES')
-USA_table<-clean_table[(index_USA+3):nrow(clean_table),]
+# index_USA<-which(clean_table$location == 'TOTAL CASES')
+# USA_table<-clean_table[(index_USA+3):nrow(clean_table),]
 clean_table<-clean_table[1:index_USA-1,]
 clean_table<-clean_table%>%mutate(
     code = countrycode(location, origin = 'country.name', destination = 'iso3c'))
