@@ -519,7 +519,8 @@ topline_df<-topline_df%>%filter(type!="omicronseq")
 cases_recent<-global_t%>%filter(submission_date==LAST_DATA_PULL_DATE)%>%
   select(submission_date, rolling_cases_last_7_days, n_new_cases, rolling_cases_lag_7)%>%
   mutate(change_cases_rolling_7_day_sum = (rolling_cases_last_7_days - rolling_cases_lag_7),
-         pctchange_cases_rolling_7_day_sum = round(100*change_cases_rolling_7_day_sum/(rolling_cases_lag_7),1))
+         pctchange_cases_rolling_7_day_sum = round(100*change_cases_rolling_7_day_sum/(rolling_cases_lag_7),1))%>%
+  select(!submission_date)
 type = "global_cases"
 cases_recent<-rbind(type, cases_recent)
 # rename so we can bind to toplin df
