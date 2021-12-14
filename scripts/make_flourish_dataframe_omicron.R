@@ -579,7 +579,7 @@ topline_df$change_from = c("Yesterday", "Yesterday", "7 days ago", "30 days ago"
 
 # Add descriptors of metrics
 topline_df$Metric <-c("Cumulative confirmed Omicron cases", 
-                      "Locations with confirmed Omicron case(s)",
+                      "Countries/territories with confirmed Omicron case(s)",
                       "Total Covid-19 cases reported in the last 7 days",
                       "Percent of Covid-19 cases sequenced in the last 30 days*")
 
