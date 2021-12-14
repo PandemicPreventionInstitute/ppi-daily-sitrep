@@ -25,7 +25,7 @@ today <- chartr(old = '-', new = '_', today)
 today <- chartr(old = ' ', new = '_', today)
 
 # Domino path
-path <- paste0('mnt/data/raw/gisaid_hcov-19_', today, '.tsv')
+path <- paste0('/mnt/data/raw/gisaid_hcov-19_', today, '.tsv')
 # local path
 #path <- paste0('../data/raw/gisaid_hcov-19_', today, '.tsv')
  
