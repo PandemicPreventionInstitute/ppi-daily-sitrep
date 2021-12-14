@@ -308,7 +308,7 @@ omicron_seq<- omicron_seq%>%
   mutate(country_name = countrycode(code, origin = 'iso3c', destination = 'country.name'))
 # rename columns
 omicron_seq_print<-omicron_seq%>%rename(
-  Country = country_name,
+  `Country/Location/Territory` = country_name,
   Confirmed = BNO_confirmed,
   Probable = BNO_probable, 
   GISAID = cum_omicron_seq
@@ -419,7 +419,6 @@ omicron_t<-omicron_t%>%filter(cum_GISAID_seq!=0)
 GISAID_omicron_t<-omicron_t%>%group_by(submission_date)%>%
   summarise(n_countries_GISAID = n(),
             n_seq_GISAID = sum(replace_na(cum_GISAID_seq, 0)))
-#write.csv(GISAID_omicron_t, "../data/processed/GISAID_omicron_t.csv")
 
 omicron_merge_country_date<-full_join(omicron_t, BNO_omicron_t, by = c("submission_date"= 
 "date", "code"= "code"))
@@ -587,13 +586,15 @@ topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
 write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
 write.csv(topline_df, '/mnt/data/processed/topline_df.csv')
 write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
+write.csv(GISAID_omicron_t, "/mnt/data/processed/GISAID_omicron_t.csv")
+
 
 # local path
 #write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv") # omicron by country currently
 #write.csv(topline_df, '../data/processed/topline_df.csv') #toplines for carousel
 #write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv") # country-level metrics for FLourish
 #write.csv(global_t, '../data/processed/all_metrics_global_t.csv') #data for global timecourse
-
+#write.csv(GISAID_omicron_t, "../data/processed/GISAID_omicron_t.csv")
 
 
 
