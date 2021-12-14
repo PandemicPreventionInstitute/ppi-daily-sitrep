@@ -69,7 +69,7 @@ clean_table<-clean_table%>%
 
 # Save daily tibble -------------------------------------------------------------
 
-date <- str_replace(substr(lubridate::now(), 1, 13), ' ', '-')
+date <- str_replace(substr(lubridate::now('EST'), 1, 13), ' ', '-')
 
 # Domino path
 write_csv(clean_table, paste0('/mnt/data/raw/daily_BNO_file/', date, '.csv'))
