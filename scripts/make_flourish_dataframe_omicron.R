@@ -317,12 +317,13 @@ omicron_seq$max_omicron[omicron_seq$max_omicron== -Inf]<-NA
 omicron_seq<- omicron_seq%>%
   mutate(country_name = countrycode(code, origin = 'iso3c', destination = 'country.name'))
 # rename columns
-omicron_seq_print<-omicron_seq%>%rename(
+omicron_seq_print<-omicron_seq%>%select(
+  country_name,BNO_confirmed, BNO_probable, cum_omicron_seq)%>%rename(
   `Country/Region/Territory` = country_name,
   Confirmed = BNO_confirmed,
   Probable = BNO_probable, 
   GISAID = cum_omicron_seq
-)%>%select(Country, Confirmed, Probable, GISAID)
+)
 
 
 # join GISAID data with omicron sequence counts
