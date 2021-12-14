@@ -524,7 +524,7 @@ cases_recent<-global_t%>%filter(submission_date==LAST_DATA_PULL_DATE)%>%
 type = "global_cases"
 cases_recent<-rbind(type, cases_recent)
 # rename so we can bind to toplin df
-cases_df<-cases_recent%>%select(!submission_date & !rolling_cases_lag_7)%>%rename(
+cases_df<-cases_recent%>%select(!rolling_cases_lag_7)%>%rename(
   n = rolling_cases_last_7_days, change = change_cases_rolling_7_day_sum,
   pctchange = pctchange_cases_rolling_7_day_sum)%>%
   mutate(type = "global_cases")%>%
