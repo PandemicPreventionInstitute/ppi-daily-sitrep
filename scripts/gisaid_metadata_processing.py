@@ -2,7 +2,7 @@
 """
 Created on Mon Nov 29 13:47:38 2021.
 
-@author: zsusswein
+@author: originally by Dave Luo, edited by zsusswein
 
 
 Takes a file called metadata.tsv in the data folder
