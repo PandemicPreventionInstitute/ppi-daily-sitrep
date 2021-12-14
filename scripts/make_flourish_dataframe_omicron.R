@@ -38,7 +38,6 @@ library(scales) # comma formatting
 rm(list = ls())
 today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
-#
 
 ## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
@@ -279,6 +278,8 @@ gisaid_recent_data<-gisaid_recent_data%>%
 # -------- Merge GISAID Omicron & BNO Omicron by country  --------------------------------
 
 BNO_omicron<-read.csv(BNO_CASES_BY_COUNTRY_PATH)
+stopifnot(today %in% BNO_CASES_BY_COUNTRY_PATH)
+print('GISAID Omicron data not in current hour')
 BNO_omicron<-BNO_omicron%>%
   rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
   select(code, BNO_confirmed, BNO_probable)
@@ -351,11 +352,6 @@ gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$max_prevale
 gisaid_summary_df$max_prevalence_variant_pct_w_pct[gisaid_summary_df$cum_tpr<0.002 & gisaid_summary_df$max_prevalence_variant_pct>=95]<-'minimal recent COVID cases'
 
 
-# Write country-level data to csvs
-# local path
-#write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv")
-#Domino path
-write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
 
 # Load and join shapefile for flourish
 shapefile <- read_delim(SHAPEFILES_FOR_FLOURISH_PATH, delim = "\t") %>%
@@ -377,12 +373,9 @@ stopifnot (c('geometry', 'latitude', 'longitude', 'Name', 'max_omicron',
 # only output the necessary columns!
 gisaid_summary_df<-gisaid_summary_df%>% select(geometry,latitude, longitude, Name, max_omicron, 
                                                max_omicron_seq_NA, cases_per_100k_last_7_days)
+# Ready to for output
 gisaid_summary_df<-distinct(gisaid_summary_df)
 
-# Domino path
-write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
-# local path
-#write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv")
 
 
 
@@ -485,7 +478,7 @@ global_t<-global_t%>%rename(n_omicron_seq = n_seq_GISAID, n_omicron_cases = n_ca
 
 
 # -------- Make the toplines -------------------------------------------------------------
-today <- as.Date(substr(lubridate::now('EST'), 1, 10))
+today <- lubridate::today('EST')
 global_today<-global_t%>%filter(submission_date>=(today-1),
                                 submission_date<=today)%>%
               select(submission_date, n_omicron_cases,n_countries_all, n_omicron_seq)%>%
@@ -576,7 +569,7 @@ topline_df$change[topline_df$change>0]<-paste0('+ ', topline_df$change[topline_d
 topline_df$pctchange[topline_df$pctchange>0]<-paste0('+ ', topline_df$pctchange[topline_df$pctchange>0])
 
 # add column for timeframe 
-topline_df$change_from = c("3 days ago", "3 days ago", "7 days ago", "30 days ago")
+topline_df$change_from = c("Yesterday", "Yesterday", "7 days ago", "30 days ago")
 
 # Add descriptors of metrics
 topline_df$Metric <-c("Cumulative confirmed Omicron cases", 
@@ -588,11 +581,18 @@ topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
   rename(Value = n, `Change (#)` = change, `Change (%)`= pctchange, `Change from` = change_from)
 
 
-# Domino path
-write.csv(topline_df, '/mnt/data/processed/topline_df.csv')
-# local path
-#write.csv(topline_df, '../data/processed/topline_df.csv')
+# ----- Output paths ------------------------------------------------------
 
+# Domino path
+write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
+write.csv(topline_df, '/mnt/data/processed/topline_df.csv')
+write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
+
+# local path
+#write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv") # omicron by country currently
+#write.csv(topline_df, '../data/processed/topline_df.csv') #toplines for carousel
+#write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv") # country-level metrics for FLourish
+#write.csv(global_t, '../data/processed/all_metrics_global_t.csv') #data for global timecourse
 
 
 
