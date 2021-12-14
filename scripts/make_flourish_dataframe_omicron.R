@@ -277,21 +277,31 @@ gisaid_recent_data<-gisaid_recent_data%>%
 
 # -------- Merge GISAID Omicron & BNO Omicron by country  --------------------------------
 
-BNO_omicron<-read.csv(BNO_CASES_BY_COUNTRY_PATH)
-stopifnot(today %in% BNO_CASES_BY_COUNTRY_PATH)
-print('GISAID Omicron data not in current hour')
+BNO_omicron_t<-read_csv(BNO_CASES_BY_COUNTRY_DATE)
+BNO_omicron_t<-unique(BNO_omicron_t)
+BNO_omicron_t<-BNO_omicron_t%>%drop_na(confirmed)
+BNO_omicron_t<-BNO_omicron_t%>%rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
+  select(code, BNO_confirmed, BNO_probable, timestamp)
+BNO_omicron_t$date<-as.Date(substr(BNO_omicron_t$timestamp, 1, 10))
+
+# Grab today's most recent data only (and throw error if not updated)
+BNO_omicron<-BNO_omicron_t%>%filter(timestamp == (max(timestamp)))
+today_date<-lubridate::today('EST')
+stopifnot("Scraper didnt update properly today" = max(BNO_omicron$date) == today)
+
 BNO_omicron<-BNO_omicron%>%
-  rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
   select(code, BNO_confirmed, BNO_probable)
 
+# GISAID OMICRON data read in
 omicron_t<-read.csv(OMICRON_DAILY_CASES)
 omicron_seq<-omicron_t%>%group_by(code)%>%
   summarise(cum_omicron_seq = sum(n, na.rm = TRUE))
 
+# GISAID Omicron global summary stats
 GISAID_print<-omicron_seq%>%
   mutate(Country = countrycode(code, origin = 'iso3c', destination = 'country.name'))%>%
   rename(Count = cum_omicron_seq)%>%select(Country, Count)
-#write.csv(GISAID_print, "../data/processed/GISAID_table.csv")
+
 
 # combine the two tables
 omicron_seq<-full_join(omicron_seq, BNO_omicron, by = "code")
@@ -308,7 +318,7 @@ omicron_seq<- omicron_seq%>%
   mutate(country_name = countrycode(code, origin = 'iso3c', destination = 'country.name'))
 # rename columns
 omicron_seq_print<-omicron_seq%>%rename(
-  `Country/Location/Territory` = country_name,
+  `Country/Region/Territory` = country_name,
   Confirmed = BNO_confirmed,
   Probable = BNO_probable, 
   GISAID = cum_omicron_seq
@@ -366,9 +376,13 @@ gisaid_summary_df <-left_join(shapefile, gisaid_summary_df, by = 'country_code')
 gisaid_summary_df <- left_join(lat_long, gisaid_summary_df, by = "country_code")
 
 # select cols for flourish and ensure that they're present in the df
+stopifnot ("Error: gisaid_summary_df.csv does not contain all necessary columns" = 
+             c('geometry', 'latitude', 'longitude', 'Name', 'max_omicron',
+               'max_omicron_seq_NA', 'cases_per_100k_last_7_days') %in% colnames(gisaid_summary_df))
 
-stopifnot (c('geometry', 'latitude', 'longitude', 'Name', 'max_omicron',
-             'max_omicron_seq_NA', 'cases_per_100k_last_7_days') %in% colnames(gisaid_summary_df))
+# Check to make sure cases are filled in for say USA
+stopifnot("Error: case data not in gisaid_summary_df" = 
+            !is.na(gisaid_summary_df$cases_per_100k_last_7_days[gisaid_summary_df$country_code=="USA"]))
 
 # only output the necessary columns!
 gisaid_summary_df<-gisaid_summary_df%>% select(geometry,latitude, longitude, Name, max_omicron, 
@@ -383,13 +397,6 @@ gisaid_summary_df<-distinct(gisaid_summary_df)
 
 
 # -------- Global Combined Omicron from BNO and GISAID, and GISAID+FIND stats over time --------------------------------
-BNO_omicron_t<-read_csv(BNO_CASES_BY_COUNTRY_DATE)
-BNO_omicron_t<-unique(BNO_omicron_t)
-BNO_omicron_t<-BNO_omicron_t%>%drop_na(confirmed)
-BNO_omicron_t<-BNO_omicron_t%>%rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
-  select(code, BNO_confirmed, BNO_probable, timestamp)
-BNO_omicron_t$date<-as.Date(substr(BNO_omicron_t$timestamp, 1, 10))
-
 # Keeps only the latest timestamp only for that day
 BNO_omicron_t<-BNO_omicron_t%>%group_by(code, date)%>%
   filter(timestamp == max(timestamp))
