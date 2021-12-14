@@ -557,8 +557,8 @@ topline_df<-rbind(topline_df, seq_df)
 
 
 # Change all but percent to be formatted with commas!
-topline_df$n[1:3]<-comma_format(accuracy = 2)(topline_df$n[1:3])
-topline_df$change[1:3]<-comma_format(accuracy = 2)(topline_df$change[1:3])
+topline_df$n[1:3]<-comma_format()(topline_df$n[1:3])
+topline_df$change[1:3]<-comma_format()(topline_df$change[1:3])
 # add percents
 topline_df$n[4]<-paste0(topline_df$n[4], ' %')
 topline_df$change[4]<-paste0(topline_df$change[4], ' %')
