@@ -287,7 +287,7 @@ BNO_omicron_t$date<-as.Date(substr(BNO_omicron_t$timestamp, 1, 10))
 # Grab today's most recent data only (and throw error if not updated)
 BNO_omicron<-BNO_omicron_t%>%filter(timestamp == (max(timestamp)))
 today_date<-lubridate::today('EST')
-stopifnot("Scraper didnt update properly today" = max(BNO_omicron$date) == today)
+stopifnot("Scraper didnt update properly today" = max(BNO_omicron$date) == today_date)
 
 BNO_omicron<-BNO_omicron%>%
   select(code, BNO_confirmed, BNO_probable)
