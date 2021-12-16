@@ -63,7 +63,7 @@ clean_table<-clean_table%>%mutate(
 
 # Add time stamp to country table and USA table
 clean_table<-clean_table%>% 
-    mutate(timestamp = lubridate::now())
+    mutate(timestamp = lubridate::now('EST'))
 # USA_table<-USA_table%>% 
     #mutate(timestamp = lubridate::now())
 

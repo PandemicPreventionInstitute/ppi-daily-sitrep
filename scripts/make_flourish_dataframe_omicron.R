@@ -38,6 +38,7 @@ library(scales) # comma formatting
 rm(list = ls())
 today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
+today_date<-lubridate::today('EST')
 
 ## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
@@ -230,7 +231,10 @@ gisaid_t <- gisaid_t %>%
 # filter to last 60 days 
 gisaid_t <- gisaid_t %>%filter(collection_date>=(LAST_DATA_PULL_DATE -59) & 
                                  collection_date<= LAST_DATA_PULL_DATE)
+# Make sure that the most recent date is yesterday
+stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date) == (today_date - days(1)))
 #write.csv(gisaid_t, "../data/gisaid_t.csv")
+
 
 
 
@@ -283,6 +287,8 @@ BNO_omicron_t<-BNO_omicron_t%>%drop_na(confirmed)
 BNO_omicron_t<-BNO_omicron_t%>%rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
   select(code, BNO_confirmed, BNO_probable, timestamp)
 BNO_omicron_t$date<-as.Date(substr(BNO_omicron_t$timestamp, 1, 10))
+# Record time of each scrape in EST
+BNO_omicron_t$time_of_day<-as.numeric(substr(BNO_omicron_t$timestamp, 12,13))
 
 # Grab today's most recent data only (and throw error if not updated)
 BNO_omicron<-BNO_omicron_t%>%filter(timestamp == (max(timestamp)))
@@ -325,6 +331,14 @@ omicron_seq_print<-omicron_seq%>%select(
   GISAID = cum_omicron_seq
 )
 
+n_GISAID_omicron_seq<-sum(omicron_seq$cum_omicron_seq, na.rm = TRUE)
+n_GISAID_omicron_countries<-sum(!is.na(omicron_seq$cum_omicron_seq))
+n_total_omicron_cases<-sum(omicron_seq$max_omicron, na.rm = TRUE) # sum of the max of GISAID or newsnodes
+n_confirmed_omicron_cases<-sum(omicron_seq$BNO_confirmed, na.rm = TRUE) # sumof only newsnodes confirmed
+diff_total_and_confirmed<-n_total_omicron_cases-n_confirmed_omicron_cases
+n_countries_w_cases<-sum(!is.na(omicron_seq$max_omicron))
+omicron_global_summary<-data.frame(n_total_omicron_cases, n_countries_w_cases, n_confirmed_omicron_cases,
+                                   diff_total_and_confirmed, n_GISAID_omicron_seq, n_GISAID_omicron_countries)
 
 # join GISAID data with omicron sequence counts
 gisaid_summary_df<-left_join(gisaid_recent_data, omicron_seq, by = c("country_code" = "code"))
@@ -399,8 +413,10 @@ gisaid_summary_df<-distinct(gisaid_summary_df)
 
 # -------- Global Combined Omicron from BNO and GISAID, and GISAID+FIND stats over time --------------------------------
 # Keeps only the latest timestamp only for that day
-BNO_omicron_t<-BNO_omicron_t%>%group_by(code, date)%>%
-  filter(timestamp == max(timestamp))
+BNO_omicron_t<-BNO_omicron_t%>%group_by(date)%>%
+  mutate(time_diff= (abs(time_of_day) - 8))%>%
+  filter(time_diff == min(time_diff))
+
 
 # Global Omicron cases by time
 BNO_global_t<-BNO_omicron_t%>%group_by(date)%>%
@@ -592,8 +608,10 @@ topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
 
 # Domino path
 write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
+write.csv(omicron_global_summary, '/mnt/data/sitrep_summary.csv')
 write.csv(topline_df, '/mnt/data/processed/topline_df.csv')
 write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
+write.csv(global_t, "/mnt/data/prcoessed/gisaid_summary_df.csv")
 write.csv(GISAID_omicron_t, "/mnt/data/processed/GISAID_omicron_t.csv")
 
 
