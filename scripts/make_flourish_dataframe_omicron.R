@@ -611,7 +611,7 @@ write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
 write.csv(omicron_global_summary, '/mnt/data/sitrep_summary.csv')
 write.csv(topline_df, '/mnt/data/processed/topline_df.csv')
 write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
-write.csv(global_t, "/mnt/data/prcoessed/gisaid_summary_df.csv")
+write.csv(global_t, "/mnt/data/prcoessed/all_metrics_global_t.csv")
 write.csv(GISAID_omicron_t, "/mnt/data/processed/GISAID_omicron_t.csv")
 
 
