@@ -25,13 +25,19 @@ today <- chartr(old = '-', new = '_', today)
 today <- chartr(old = ' ', new = '_', today)
 
 # Domino path
-path <- paste0('/mnt/data/raw/gisaid_hcov-19_', today, '.tsv')
+path1 <- paste0('/mnt/data/raw/gisaid_hcov-19_', today, '.tsv')
+path2 <- paste0('/mnt/data/raw/gisaid_hcov-19_', today, '_2.tsv')
 # local path
 #path <- paste0('../data/raw/gisaid_hcov-19_', today, '.tsv')
  
+# Manual binding of GISAID sequences (max single download is 10,000)
+x1 <- read_delim(path, delim = '\t') %>% 
+  janitor::clean_names()
+x2 <- read_delim(path2, delim = '\t') %>% 
+  janitor::clean_names()
 
-x <- read_delim(path, delim = '\t') %>% 
-                janitor::clean_names()
+x<-rbind(x1, x2)
+
 
 # Process data ------------------------------------------------------------
 
