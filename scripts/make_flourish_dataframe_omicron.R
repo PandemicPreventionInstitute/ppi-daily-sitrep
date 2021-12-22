@@ -39,7 +39,7 @@ rm(list = ls())
 today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
 today_date<-lubridate::today('EST')
-today<-"2021-12-22-13"
+#today<-"2021-12-22-13"
 
 ## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
