@@ -39,6 +39,7 @@ rm(list = ls())
 today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
 today_date<-lubridate::today('EST')
+today<-"2021-12-22-13"
 
 ## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
@@ -610,7 +611,7 @@ topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
 
 # Domino path
 write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
-write.csv(omicron_global_summary, '/mnt/data/sitrep_summary.csv')
+write.csv(omicron_global_summary, '/mnt/data/processed/sitrep_summary.csv')
 write.csv(topline_df, '/mnt/data/processed/topline_df.csv')
 write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
 write.csv(global_t, "/mnt/data/processed/all_metrics_global_t.csv")

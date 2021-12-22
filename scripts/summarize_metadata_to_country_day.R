@@ -23,6 +23,7 @@ library(countrycode)
 today <- substr(lubridate::now('GMT'), 1, 13)
 today <- chartr(old = '-', new = '_', today)
 today <- chartr(old = ' ', new = '_', today)
+today<-"2021_12_22_13"
 
 # Domino path
 path1 <- paste0('/mnt/data/raw/gisaid_hcov-19_2021_12_20_13.tsv')# data before 12/17
