@@ -38,7 +38,7 @@ raw_table <- html_elements(page, xpath = xpath) %>%
 # Convert html table to tibble --------------------------------------------
 
 # remove leading and trailing text and convert from vector to n x 3 matrix
-table_as_matrix <- matrix(raw_table[6:(which(raw_table == "total (worldwide)")-1)], ncol = 5, byrow = T)
+table_as_matrix <- matrix(raw_table[8:(which(raw_table == "total (worldwide)")-1)], ncol = 7, byrow = T)
 
 
 clean_table <- tibble(location = table_as_matrix[,1],
