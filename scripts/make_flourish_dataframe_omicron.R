@@ -287,8 +287,10 @@ BNO_omicron_t<-BNO_omicron_t%>%drop_na(confirmed)
 BNO_omicron_t<-BNO_omicron_t%>%rename(BNO_confirmed = confirmed, BNO_probable = probable)%>%
   select(code, BNO_confirmed, BNO_probable, timestamp)
 BNO_omicron_t$date<-as.Date(substr(BNO_omicron_t$timestamp, 1, 10))
-# Record time of each scrape in EST
-BNO_omicron_t$time_of_day<-as.numeric(substr(BNO_omicron_t$timestamp, 12,13))
+# Records time of scrape 
+BNO_omicron_t$hour_of_day<-as.numeric(substr(BNO_omicron_t$timestamp, 12,13)) 
+BNO_omicron_t$min_of_day<-as.numeric(substr(BNO_omicron_t$timestamp, 15,16))/60 
+BNO_omicron_t$time_of_day<- BNO_omicron_t$hour_of_day + BNO_omicron_t$min_of_day
 
 # Grab today's most recent data only (and throw error if not updated)
 BNO_omicron<-BNO_omicron_t%>%filter(timestamp == (max(timestamp)))
@@ -414,7 +416,7 @@ gisaid_summary_df<-distinct(gisaid_summary_df)
 # -------- Global Combined Omicron from BNO and GISAID, and GISAID+FIND stats over time --------------------------------
 # Keeps only the latest timestamp only for that day
 BNO_omicron_t<-BNO_omicron_t%>%group_by(date)%>%
-  mutate(time_diff= (abs(time_of_day) - 8))%>%
+  mutate(time_diff= (abs(time_of_day) - 13))%>%
   filter(time_diff == min(time_diff))
 
 
@@ -611,7 +613,7 @@ write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
 write.csv(omicron_global_summary, '/mnt/data/sitrep_summary.csv')
 write.csv(topline_df, '/mnt/data/processed/topline_df.csv')
 write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
-write.csv(global_t, "/mnt/data/prcoessed/all_metrics_global_t.csv")
+write.csv(global_t, "/mnt/data/processed/all_metrics_global_t.csv")
 write.csv(GISAID_omicron_t, "/mnt/data/processed/GISAID_omicron_t.csv")
 
 

@@ -25,8 +25,10 @@ today <- chartr(old = '-', new = '_', today)
 today <- chartr(old = ' ', new = '_', today)
 
 # Domino path
-path1 <- paste0('/mnt/data/raw/gisaid_hcov-19_', today, '.tsv')
-path2 <- paste0('/mnt/data/raw/gisaid_hcov-19_', today, '_2.tsv')
+path1 <- paste0('/mnt/data/raw/gisaid_hcov-19_2021_12_20_13.tsv')# data before 12/17
+path2 <- paste0('/mnt/data/raw/gisaid_hcov-19_2021_12_22_12.tsv')# data from 12/18-12/20
+path3<-paste0('/mnt/data/raw/gisaid_hcov-19_', today, '.tsv') # data from 12/21 on
+
 # local path
 #path <- paste0('../data/raw/gisaid_hcov-19_', today, '.tsv')
  
@@ -35,8 +37,11 @@ x1 <- read_delim(path, delim = '\t') %>%
   janitor::clean_names()
 x2 <- read_delim(path2, delim = '\t') %>% 
   janitor::clean_names()
+x3 <- read_delim(path3, delim = '\t') %>% 
+  janitor::clean_names()
 
 x<-rbind(x1, x2)
+x<-rbind(x,x3)
 
 
 # Process data ------------------------------------------------------------
