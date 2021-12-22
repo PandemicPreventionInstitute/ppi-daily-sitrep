@@ -34,11 +34,11 @@ path3<-paste0('/mnt/data/raw/gisaid_hcov-19_', today, '.tsv') # data from 12/21 
 #path <- paste0('../data/raw/gisaid_hcov-19_', today, '.tsv')
  
 # Manual binding of GISAID sequences (max single download is 10,000)
-x1 <- read_delim(path, delim = '\t') %>% 
+x1 <- read_delim(path, delim = '\t',col_types = 'ccDc' ) %>% 
   janitor::clean_names()
-x2 <- read_delim(path2, delim = '\t') %>% 
+x2 <- read_delim(path2, delim = '\t', col_types = 'ccDc') %>% 
   janitor::clean_names()
-x3 <- read_delim(path3, delim = '\t') %>% 
+x3 <- read_delim(path3, delim = '\t', col_types = 'ccDc') %>% 
   janitor::clean_names()
 
 x<-rbind(x1, x2)
@@ -64,7 +64,7 @@ processed <- x %>%
 
 # local path
 # write_csv(processed,'../data/processed/metadata_summarized.csv')
-
+stopifnot("Updated GISAID Omicron sequences failed" = exists("processed"))
 # Domino path
 write_csv(processed,'/mnt/data/processed/metadata_summarized.csv')
   
