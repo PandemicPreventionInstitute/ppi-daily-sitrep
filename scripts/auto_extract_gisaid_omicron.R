@@ -11,8 +11,8 @@ library(httr)
 #Globals#
 #########
 secrets <- read.csv("/mnt/data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
-user <- secrets[1,1]
-pw <- secrets[2,1]
+user <- as.character(secrets[1,1])
+pw <- as.character(secrets[2,1])
 
 stopifnot('username is not of type character'= is.character(user))
 
