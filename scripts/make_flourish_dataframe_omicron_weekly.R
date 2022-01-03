@@ -43,7 +43,8 @@ today_date<-lubridate::today('EST')
 
 ## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
-GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
+#GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
+GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
 OMICRON_DAILY_CASES<-'/mnt/data/raw/omicron_gisaid_feed.csv'
 BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
 BNO_CASES_BY_COUNTRY_DATE<-'/mnt/data/raw/BNO_scraped_master.csv'
@@ -65,6 +66,7 @@ LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/static/country_lat_long_names.csv'
 LAST_DATA_PULL_DATE<-as.Date(substr(lubridate::now('EST'), 1, 10))-days(1) # Make this based off of yesterday!
 TIME_WINDOW <- 29 # since we will include the reference data
 TIME_WINDOW_WEEK<- 6 # since will include the reference date
+TIME_SERIES_WINDOW<- 89 # last 90 days?
 CONF_LEVEL<-0.95 # confidence we want to be that a variant is not greater than our estimated prevalence
 # that has been detected at least once (i.e. what variant prevalence would we be able to detect?)
 
@@ -191,16 +193,12 @@ gisaid_raw$country_code[gisaid_raw$country == "Kosovo"] <- "XKX"
 gisaid_raw$country_code[gisaid_raw$country == "Guernsey"] <- "GGY"
 gisaid_raw$country_code[gisaid_raw$country == "Falkland Islands"] <- "FLK"
 
-# parse collection dates as dates
-# If date is year month, without day, the date gets removed 
+# parse collection dates as dates (note this uses the imputed day 15 from metadata processing script)
 gisaid_raw$collection_date <- as.Date(as.character(gisaid_raw$gisaid_collect_date), format = "%Y-%m-%d")
 
-test_date<-"2021-12"
-test<-as.Date(as.character(test_date), format = "%Y-%m-%d")
 
-gisaid_t <- gisaid_raw%>%select(collection_date, gisaid_country, all_lineages,b_1_1_529,
-                                         owid_new_cases, owid_population, country_code, owid_location)%>%
-  rename(n_new_sequences = all_lineages)
+gisaid_t <- gisaid_raw%>%select(collection_date, gisaid_country, n_new_sequences,
+                                         owid_new_cases, owid_population, country_code, owid_location)
 
 # CHECK THAT DATA SET HAS COMPLETED DATE TIME SERIES
 collection_date <- seq.Date(first_date, LAST_DATA_PULL_DATE, by = "day")
@@ -230,7 +228,7 @@ gisaid_t <- gisaid_t %>%
 
 
 # filter to last 60 days 
-gisaid_t <- gisaid_t %>%filter(collection_date>=(LAST_DATA_PULL_DATE -59) & 
+gisaid_t <- gisaid_t %>%filter(collection_date>=(LAST_DATA_PULL_DATE -TIME_SERIES_WINDOW) & 
                                  collection_date<= LAST_DATA_PULL_DATE)
 # Make sure that the most recent date is yesterday
 stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date) == (today_date - days(1)))
