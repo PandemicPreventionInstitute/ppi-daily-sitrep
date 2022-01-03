@@ -14,6 +14,8 @@ secrets <- read.csv("/mnt/data/secrets_gisaid.csv", header = FALSE) #a file with
 user <- secrets[1,1]
 pw <- secrets[2,1]
 
+stopifnot('username is not of type character'= is.character(user))
+
 ######################
 #Download and process#
 ######################
