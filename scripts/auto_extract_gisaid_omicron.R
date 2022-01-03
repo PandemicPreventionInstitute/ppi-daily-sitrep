@@ -56,7 +56,7 @@ gisaid_metadata <- read.csv(text = gisaid_metadata_raw_text)
 
 #5. Fix GISAID metadata load in (first row accidentally becomes column names)
 first_row<-colnames(gisaid_metadata)
-EPI_number<- first_row[1]
+accession_id<- first_row[1]
 country <-first_row[2]
 location <- str_replace_all(first_row[3], "[.]"," ")
 submission_date <- chartr(old = ".", new = "-", substr(first_row[4], 2, 11))
