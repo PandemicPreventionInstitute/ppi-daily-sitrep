@@ -68,7 +68,7 @@ gisaid_metadata<-rbind(first_seq, gisaid_metadata)
 
 #6. Write both files to csvs
 
-write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv', row.names = F)
-write.csv(gisaid_metadata, '/mnt/data/raw/metadata.csv', row.names = F)
+write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv')
+write.csv(gisaid_metadata, '/mnt/data/raw/metadata.csv')
 
 #done!
