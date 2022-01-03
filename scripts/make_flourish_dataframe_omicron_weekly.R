@@ -44,7 +44,7 @@ today_date<-lubridate::today('EST')
 ## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
 GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
-OMICRON_DAILY_CASES<-paste0('/mnt/data/processed/metadata_summarized.csv')
+OMICRON_DAILY_CASES<-'/mnt/data/raw/omicron_gisaid_feed.csv'
 BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
 BNO_CASES_BY_COUNTRY_DATE<-'/mnt/data/raw/BNO_scraped_master.csv'
 SEQUENCES_LAST_30_DAYS<-'/mnt/data/processed/sequences_last_30_days.csv'
