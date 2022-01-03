@@ -10,7 +10,7 @@ library(httr)
 #########
 #Globals#
 #########
-secrets <- read.csv("../data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
+secrets <- read.csv("/mnt/data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
 user <- secrets[1,1]
 pw <- secrets[2,1]
 
@@ -51,12 +51,12 @@ submission_date <- chartr(old = ".", new = "-", substr(first_row[4], 2, 11))
 collection_date <- chartr(old = ".", new = "-", substr(first_row[5], 2, 11))
 first_seq<-data.frame(EPI_number, country, location, submission_date, collection_date)
 #rename colnames
-colnames(gisaid_metadata)<- c("EPI_number", "country", "location", "submission_date", "collection_date")
+colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission_date", "collection_date")
 gisaid_metadata<-rbind(first_seq, gisaid_metadata)
 
 #6. Write both files to csvs
 
-write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv')
-write.csv(gisaid_metadata, '/mnt/data/raw/metadata.csv')
+write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv', row.names = F)
+write.csv(gisaid_metadata, '/mnt/data/raw/metadata.csv', row.names = F)
 
 #done!
