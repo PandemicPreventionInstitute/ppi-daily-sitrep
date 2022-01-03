@@ -61,14 +61,14 @@ country <-first_row[2]
 location <- str_replace_all(first_row[3], "[.]"," ")
 submission_date <- chartr(old = ".", new = "-", substr(first_row[4], 2, 11))
 collection_date <- chartr(old = ".", new = "-", substr(first_row[5], 2, 11))
-first_seq<-data.frame(EPI_number, country, location, submission_date, collection_date)
+first_seq<-data.frame(accession_id, country, location, submission_date, collection_date)
 #rename colnames
 colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission_date", "collection_date")
 gisaid_metadata<-rbind(first_seq, gisaid_metadata)
 
 #6. Write both files to csvs
 
-write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv')
-write.csv(gisaid_metadata, '/mnt/data/raw/metadata.csv')
+write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv', row.names = FALSE)
+write.csv(gisaid_metadata, '/mnt/data/raw/metadata.csv', row.names = FALSE)
 
 #done!
