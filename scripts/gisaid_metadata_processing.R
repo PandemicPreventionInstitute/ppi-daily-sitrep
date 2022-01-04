@@ -88,7 +88,32 @@ metadata<- metadata[metadata$collection_date >= as.Date("2019-12-01", format = "
 metadata <- metadata[metadata$collection_date <= as.Date(Sys.Date(), format = "%Y-%m-%d"),]
 # create masterlist of sequences with collection date in future of when they were submitted
 
+suspect_date <- read_csv('../data/suspect_date.csv',
+                         col_types = 'c') %>% 
+  bind_rows(metadata %>% 
+              filter((collection_date > today()) | 
+                      (submission_date > today()) |
+                       (collection_date > submission_date)) %>% 
+              select(accession_id)) %>% 
+  unique()
+
+write_csv(suspect_date, '../data/suspect_date.csv')
+
+metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['accession_id']
+
 # 5. Exclude sequences in Next Strain exclusion list by assession ID
+
+## WRONG: NEEDS TO USE NAME NOT ACCESSION ID -- NEED TO UPDATE FEED
+#ns_exclude <- read_delim('https://raw.githubusercontent.com/nextstrain/ncov/master/defaults/exclude.txt',
+#                         delim = '\n',
+#                         col_names = 'accession_id',
+#                         col_types = 'c') %>% 
+#  filter(stringr::str_starts(string = accession_id,
+#                              pattern = '#',
+#                              negate = TRUE),
+#         accession_id != '') %>% 
+#  mutate(accession_id = paste0('hCOV-19/', accession_id))
+
 
 # 6. Generate country codes from GISAID country names
 metadata$code <- countrycode(metadata$country, origin = 'country.name', destination = 'iso3c')

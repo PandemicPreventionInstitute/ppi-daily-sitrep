@@ -1,6 +1,7 @@
 # Data Files
 data/processed/*
 data/raw/*
+data/metadata.tsv
 
 # Github Update .sh
 scripts/git_update.sh
