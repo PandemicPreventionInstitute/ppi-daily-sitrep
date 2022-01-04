@@ -3,8 +3,9 @@
 # and were submitted to GISAID prior to the index date, the same metric but 
 # lagged the days, and the ratio of these two 
 
-# This file generates the masterfile, calculating this from the beginning of
-# 2020 onward. 
+# This file loads in the masterfile, calculates the sequences for the dates from
+# the most recent date in the masterfile to yesterday, and concatenates that to the 
+# masterfile
 
 #getwd()
 
@@ -19,20 +20,21 @@ library(zoo)
 
 # Load data ---------------------------------------------------------------
 
-#local path
-#GISAID_METADATA_PATH<-'../data/raw/metadata.csv'
 
 #Domino paths
-GISAID_METADATA_PATH<-'/mnt/data/raw/metadata/csv'
+GISAID_METADATA_PATH<-'/mnt/data/raw/metadata.csv'
+SEQ_LAST_30_DAYS_MASTERFILE<- '/mnt/data/processed/sequences_last_30_days'
 
 df <- read.csv(GISAID_METADATA_PATH) %>% 
   filter(collection_date > ymd('2020-1-1'))
+master<- read.csv(SEQ_LAST_30_DAYS_MASTERFILE)
 
 
 
 # Set up arrays -----------------------------------------------------------
 
-date_seq = as.character.Date(seq(ymd("2020-12-01"), today()-1, by = 'day'))
+last_date<-max(ymd(master$date))
+date_seq = as.character.Date(seq(last_date, today()-1, by = 'day'))
 
 results = vector(mode = 'integer',
                  length = length(date_seq))
@@ -55,10 +57,14 @@ for (i in 1:length(date_seq)){
 
 # Combine date and result arrays into a tibble ----------------------------
 
-combined_df <- tibble(date = ymd(date_seq),
+recent_df <- tibble(date = ymd(date_seq),
                       n = results)
+master_n_only<-master%>%select(date,n)
 
+# Concatenate to master with number of sequences in past 30 days
+combined_df<-rbind(master_n_only, recent_df)
 
+#Calculate number of sequences in previous 30 day time window
 combined_df <- combined_df %>% 
   mutate(n_lag_30 = c(rep(NA_integer_, 30), combined_df$n[1:(nrow(combined_df)-30)]),
          r = n / n_lag_30)
