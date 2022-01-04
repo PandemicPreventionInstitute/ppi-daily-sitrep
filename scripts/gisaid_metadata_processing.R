@@ -65,6 +65,7 @@ suspect_date <- read_csv('../data/suspect_date.csv',
 
 write_csv(suspect_date, '../data/suspect_date.csv')
 
+metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['accession_id']
 
 # 5. Exclude sequences in Next Strain exclusion list by assession ID
 
