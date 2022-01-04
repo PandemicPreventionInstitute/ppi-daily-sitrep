@@ -37,7 +37,7 @@ library(dplyr) # data wrangling
 #local
 #GISAID_METADATA_PATH<-"../data/raw/metadata.csv" # from extracted datastream
 #Domino
-GISAID_METADATA<-"/mnt/data/raw/metadata.csv" # from extracted datastream
+GISAID_METADATA_PATH<-"/mnt/data/raw/metadata.csv" # from extracted datastream
 OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
 
 
