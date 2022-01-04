@@ -94,24 +94,24 @@ metadata <- metadata[metadata$collection_date <= as.Date(Sys.Date(), format = "%
 metadata$code <- countrycode(metadata$country, origin = 'country.name', destination = 'iso3c')
 
 # 7. Calculate the percent of cases sequenced in last 30 days and previous 30 days GLOBALLY
-date_seq = as.character.Date(seq(ymd('2020-1-1'), today(), by = 'day'))
-results = vector(mode = 'integer',
-                 length = length(date_seq))
-# Loop through calculation ------------------------------------------------
-for (i in 1:length(date_seq)){
-    day_iter = ymd(date_seq[i])
-    results[i] <-  metadata %>%
-        filter(collection_date >= day_iter - days(29),
-               collection_date <= day_iter,
-               submission_date <= day_iter) %>%
-        nrow()
-}
-# Combine date and result arrays into a tibble ----------------------------
-combined_df <- tibble(date = ymd(date_seq),
-                      n = results)
-combined_df <- combined_df %>%
-    mutate(n_lag_30 = c(rep(NA_integer_, 30), combined_df$n[1:(nrow(combined_df)-30)]),
-           r = n / n_lag_30)
+# date_seq = as.character.Date(seq(ymd('2020-1-1'), today(), by = 'day'))
+# results = vector(mode = 'integer',
+#                  length = length(date_seq))
+# # Loop through calculation ------------------------------------------------
+# for (i in 1:length(date_seq)){
+#     day_iter = ymd(date_seq[i])
+#     results[i] <-  metadata %>%
+#         filter(collection_date >= day_iter - days(29),
+#                collection_date <= day_iter,
+#                submission_date <= day_iter) %>%
+#         nrow()
+# }
+# # Combine date and result arrays into a tibble ----------------------------
+# combined_df <- tibble(date = ymd(date_seq),
+#                       n = results)
+# combined_df <- combined_df %>%
+#     mutate(n_lag_30 = c(rep(NA_integer_, 30), combined_df$n[1:(nrow(combined_df)-30)]),
+#            r = n / n_lag_30)
 
 
 
@@ -151,4 +151,4 @@ merged_df<-full_join(gisaid_t, owid, by = c("gisaid_collect_date"= "owid_date", 
 #write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
 #Domino
 write.csv(merged_df, '/mnt/data/processed/gisaid_owid_merged.csv', row.names = FALSE)
-write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
+#write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
