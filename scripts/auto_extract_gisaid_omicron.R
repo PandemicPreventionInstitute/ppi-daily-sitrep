@@ -5,14 +5,26 @@ rm(list = ls())
 ###########
 #Libraries#
 ###########
+install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("janitor", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("httr", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("countrycode", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("lubridate", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+
 library(httr)
+library(tidyverse)
+library(janitor)
+library(countrycode)
+library(lubridate)
 
 #########
 #Globals#
 #########
 secrets <- read.csv("/mnt/data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
-user <- secrets[1,1]
-pw <- secrets[2,1]
+user <- as.character(secrets[1,1])
+pw <- as.character(secrets[2,1])
+
+stopifnot('username is not of type character'= is.character(user))
 
 ######################
 #Download and process#
@@ -44,19 +56,19 @@ gisaid_metadata <- read.csv(text = gisaid_metadata_raw_text)
 
 #5. Fix GISAID metadata load in (first row accidentally becomes column names)
 first_row<-colnames(gisaid_metadata)
-EPI_number<- first_row[1]
+accession_id<- first_row[1]
 country <-first_row[2]
 location <- str_replace_all(first_row[3], "[.]"," ")
 submission_date <- chartr(old = ".", new = "-", substr(first_row[4], 2, 11))
 collection_date <- chartr(old = ".", new = "-", substr(first_row[5], 2, 11))
-first_seq<-data.frame(EPI_number, country, location, submission_date, collection_date)
+first_seq<-data.frame(accession_id, country, location, submission_date, collection_date)
 #rename colnames
 colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission_date", "collection_date")
 gisaid_metadata<-rbind(first_seq, gisaid_metadata)
 
 #6. Write both files to csvs
 
-write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv', row.names = F)
-write.csv(gisaid_metadata, '/mnt/data/raw/metadata.csv', row.names = F)
+write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv', row.names = FALSE)
+write.csv(gisaid_metadata, '/mnt/data/raw/metadata.csv', row.names = FALSE)
 
 #done!

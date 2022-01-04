@@ -1,24 +1,56 @@
 #Kaitlyn Johnson
-#process metadata from GISAID automated data stream
+# process metadata from GISAID automated data stream, combine with owid cases and population and generate
+# gisaid_cleaning_output.csv which contains number of sequences by collection date by country and day,
+# and number of new cases by country and day
+# V1 does not include median and quartiles of lag time calculation
+
 #Jan 3rd 2022
 rm(list = ls())
-###########
-#Libraries#
-###########
-library(tidyverse)
-library(lubridate)
-library(zoo)
 
-######################
-#Download and process#
-######################
+#------Libraries------------
+install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("janitor", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("tibble", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("countrycode", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("readxl", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("zoo", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("R.utils", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("stringr", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("tsoutliers", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("dplyr", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("scales", dependencies=TRUE, repos='http://cran.us.r-project.org')
+
+library(tidyverse) # data wrangling
+library(tibble) # data wrangling
+library(janitor) # column naming
+library(countrycode) # country c?des
+library(lubridate) # date times
+library(readxl) # excel import
+library(zoo) # calculate rolling averages
+library(R.utils) # R utilities
+library(stringr) # to parse strings in R
+library(tsoutliers) # remove outliers
+library(dplyr) # data wrangling
+
+#-----Filepaths------------
+#local
+#GISAID_METADATA_PATH<-"../data/raw/metadata.csv" # from extracted datastream
+#Domino
+GISAID_METADATA_PATH<-"/mnt/data/raw/metadata.csv" # from extracted datastream
+OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+
+
+#-----Download and process------
+
 
 #1. Download data
-metadata<-read_csv("../data/raw/metadata.csv")
+metadata<-read.csv(GISAID_METADATA_PATH)
+owid_raw<-read_csv(OWID_PATH)
 
 
 
-# 2. Separate location into continent, country, division, and location
+# 2. Separate GISAID metadata location into continent, country, division, and location
 metadata<- metadata %>%
     separate(location,
              into = c("continent", "country", "division", "location"),
@@ -48,6 +80,8 @@ metadata$country[metadata$country == "M?xico"] <- "Mexico"
 # 4. Deal with date issues
 # Assign submissions with missing date to the 15th of the month
 metadata$collection_date <- ifelse(nchar(as.character(metadata$collection_date)) == 7, paste(as.character(metadata$collection_date), "15", sep = "-"), as.character(metadata$collection_date))
+# format as dates
+metadata$collection_date<-ymd(metadata$collection_date)
 # exclude submissions earlier than 2019-12-01
 metadata<- metadata[metadata$collection_date >= as.Date("2019-12-01", format = "%Y-%m-%d"),]
 # exclude submissions dated to the future
@@ -85,63 +119,61 @@ metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['access
 metadata$code <- countrycode(metadata$country, origin = 'country.name', destination = 'iso3c')
 
 # 7. Calculate the percent of cases sequenced in last 30 days and previous 30 days GLOBALLY
-date_seq = as.character.Date(seq(ymd('2020-1-1'), today(), by = 'day'))
-results = vector(mode = 'integer',
-                 length = length(date_seq))
-# Loop through calculation ------------------------------------------------
-for (i in 1:length(date_seq)){
-    day_iter = ymd(date_seq[i])
-    results[i] <-  metadata %>% 
-        filter(collection_date >= day_iter - days(29),
-               collection_date <= day_iter,
-               submission_date <= day_iter) %>% 
-        nrow()
-}
-# Combine date and result arrays into a tibble ----------------------------
-combined_df <- tibble(date = ymd(date_seq),
-                      n = results)
-combined_df <- combined_df %>% 
-    mutate(n_lag_30 = c(rep(NA_integer_, 30), combined_df$n[1:(nrow(combined_df)-30)]),
-           r = n / n_lag_30)
+# date_seq = as.character.Date(seq(ymd('2020-1-1'), today(), by = 'day'))
+# results = vector(mode = 'integer',
+#                  length = length(date_seq))
+# # Loop through calculation ------------------------------------------------
+# for (i in 1:length(date_seq)){
+#     day_iter = ymd(date_seq[i])
+#     results[i] <-  metadata %>%
+#         filter(collection_date >= day_iter - days(29),
+#                collection_date <= day_iter,
+#                submission_date <= day_iter) %>%
+#         nrow()
+# }
+# # Combine date and result arrays into a tibble ----------------------------
+# combined_df <- tibble(date = ymd(date_seq),
+#                       n = results)
+# combined_df <- combined_df %>%
+#     mutate(n_lag_30 = c(rep(NA_integer_, 30), combined_df$n[1:(nrow(combined_df)-30)]),
+#            r = n / n_lag_30)
 
 
 
-# 7. dataframe for total sequences in GISAID by country
-gisaid_metadata_clean <- gisaid_metadata_raw %>%
-    group_by(code) %>%
-    mutate(total_sequences = n()) %>%
-    select(code, total_sequences)
+# 8. dataframe for total sequences in GISAID by country day
+gisaid_t <- metadata %>%
+    group_by(code, country, collection_date) %>%
+    summarise(n_new_sequences = n()) %>%
+    select(code, country, collection_date, n_new_sequences)%>%
+    rename(country_code = code,
+           gisaid_collect_date = collection_date,
+           gisaid_country = country)
 
-# display one row per country
-gisaid_metadata_clean <- gisaid_metadata_clean[!duplicated(gisaid_metadata_clean$code),]
+# 9. Process OWID data 
+# only keep data after Dec. 2019
+owid<- owid_raw[owid_raw$date >= as.Date("2019-12-01", format = "%Y-%m-%d"),]
+owid$date<-as.Date(owid$date, format = "%Y-%m-%d")
+# Drop OWID region rows that start with OWID_ except specific locations
+owid<-owid%>%filter(!iso_code %in% c("OWID_AFR","OWID_ASI", "OWID_EUR", "OWID_EUN",
+                                     "OWID_INT", "OWID_NAM", "OWID_OCE",
+                                     "OWID_SAM", "OWID_WRL"))
+#select column names
+owid<-owid%>%select(date,location,iso_code,continent,new_cases,
+                    new_cases_smoothed,population,people_vaccinated,
+                    people_fully_vaccinated)
+# append owid to colnames
+colnames(owid) <- paste("owid", colnames(owid),sep="_")
 
-# find_clean: merge GISAID metadata into template
-find_clean <- left_join(find_clean, gisaid_meta?ata_clean, by = c("code" = "code"))
+# 10. Merge with GISAID metadata 
+merged_df<-full_join(gisaid_t, owid, by = c("gisaid_collect_date"= "owid_date", "country_code"= "owid_iso_code"))
 
-# replace NA with 0 for total_sequences
-find_clean$total_sequences <- ifelse(is.na(find_clean$total_sequences) == T, 0, find_clean$total_sequences)
 
-# import csv from GISAID provision (curl https://najapoland:ofEJOnWEOf?3@www.epicov.org/epi3/3p/finddx/export/provision.json.xz | xz -d -T0 > ./provision.json)
-gisaid_provision <- read.csv("provision.csv",
-                             na.strings = c("", "?")) %>%
-    # standardize names with this janitor function
-    clean_names(?
-                    
-                    # parse dates as dates
-                    gisaid_provision$created <- as.Date(as.character(gisaid_provision$created), format = "%Y-%m-%d")
-                
-                # generate country codes from GISAID country names
-                gisaid_provision$code <- countrycode(gisaid_provision$country, origin = 'country.n?me', destination = 'iso3c')
-                
-                # insert country code for Saint Martin
-                gisaid_provision$code[gisaid_provision$country=="Saint Martin"] <- "MAF"
-                
-                # insert country code for Guyana
-                gisaid_provision$code[gisaid_provision$country=="Guyane"] <- "GUY"
-                
-                # insert coun?ry code for Kosovo
-                gisaid_provision$code[gisaid_provision$country=="Kosovo"] <- "XKX"
-                
-                # select columns
-                gisaid_provision <- gisaid_provision %>%
-                    select(submission_count, code)
+
+#-------Write data to file---------
+
+#local
+#write.csv(merged_df, '../data/processed/gisaid_owid_merged.csv', row.names = FALSE)
+#write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
+#Domino
+write.csv(merged_df, '/mnt/data/processed/gisaid_owid_merged.csv', row.names = FALSE)
+#write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
