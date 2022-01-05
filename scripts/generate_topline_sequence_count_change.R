@@ -23,9 +23,10 @@ library(zoo)
 #GISAID_METADATA_PATH<-'../data/raw/metadata.csv'
 
 #Domino paths
-GISAID_METADATA_PATH<-'/mnt/data/raw/metadata/csv'
+#GISAID_METADATA_PATH<-'/mnt/data/raw/metadata.csv' # API path
+GISAID_METADATA_PATH<-'/mnt/data/raw/initial_clean_metadata.csv'
 
-df <- read.csv(GISAID_METADATA_PATH) %>% 
+df <- read_csv(GISAID_METADATA_PATH) %>% 
   filter(collection_date > ymd('2020-1-1'))
 
 
