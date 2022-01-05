@@ -75,7 +75,7 @@ combined_df <- combined_df %>%
 # Save time series --------------------------------------------------------
 
 # Domino path
-write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days_API.csv')
+write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
 
 # local path
 # write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
