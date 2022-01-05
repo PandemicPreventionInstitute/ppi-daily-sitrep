@@ -31,8 +31,7 @@ library(zoo)
   #filter(collect_date > ymd('2020-1-1'))
 
 GISAID_METADATA_PATH<-'/mnt/data/raw/metadata.csv' # API path
-df<-read_csv(GISAID_METADATA_PATH,
-             coltypes = 'cccTT') %>%
+df<-read_csv(GISAID_METADATA_PATH) %>%
   filter(collection_date > ymd('2020-1-1'))
 
 
