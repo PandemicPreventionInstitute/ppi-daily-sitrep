@@ -26,9 +26,9 @@ library(zoo)
 #GISAID_METADATA_PATH<-'/mnt/data/raw/metadata.csv' # API path
 GISAID_METADATA_PATH<-'/mnt/data/raw/initial_clean_metadata.csv'
 
-df <- read_csv(GISAID_METADATA_PATH) %>% 
-  filter(collection_date > ymd('2020-1-1'))
-
+df <- read_csv(GISAID_METADATA_PATH,
+               col_types = 'iTTlcc') %>% 
+  filter(collect_date > ymd('2020-1-1'))
 
 
 # Set up arrays -----------------------------------------------------------
