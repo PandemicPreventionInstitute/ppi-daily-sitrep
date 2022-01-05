@@ -24,7 +24,7 @@ library(zoo)
 
 #Domino paths
 #GISAID_METADATA_PATH<-'/mnt/data/raw/metadata.csv' # API path
-GISAID_METADATA_PATH<-'/mnt/data/raw/initial_clean_metadata.csv'
+GISAID_METADATA_PATH<-'/mnt/data/processed/initial_clean_metadata.csv'
 
 df <- read_csv(GISAID_METADATA_PATH,
                col_types = 'iTTlcc') %>% 
