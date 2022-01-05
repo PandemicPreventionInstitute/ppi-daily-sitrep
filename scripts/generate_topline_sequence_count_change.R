@@ -46,9 +46,9 @@ for (i in 1:length(date_seq)){
   day_iter = ymd(date_seq[i])
   
   results[i] <-  df %>% 
-    filter(collection_date >= day_iter - days(29),
-           collection_date <= day_iter,
-           submission_date <= day_iter) %>% 
+    filter(collect_date >= day_iter - days(29),
+           collect_date <= day_iter,
+           submit_date <= day_iter) %>% 
     nrow()
   
   
