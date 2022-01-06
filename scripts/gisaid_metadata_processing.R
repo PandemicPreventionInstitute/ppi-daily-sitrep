@@ -39,6 +39,7 @@ library(dplyr) # data wrangling
 #Domino
 GISAID_METADATA_PATH<-"/mnt/data/raw/metadata.csv" # from extracted datastream
 OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+FUTURE_DATE_PATH<-'/mnt/data/suspect_date.csv'
 
 
 #-----Download and process------
@@ -88,7 +89,7 @@ metadata<- metadata[metadata$collection_date >= as.Date("2019-12-01", format = "
 metadata <- metadata[metadata$collection_date <= as.Date(Sys.Date(), format = "%Y-%m-%d"),]
 # create masterlist of sequences with collection date in future of when they were submitted
 
-suspect_date <- read_csv('/mnt/data/suspect_date.csv',
+suspect_date <- read_csv(FUTURE_DATE_PATH,
                          col_types = 'c') %>% 
   bind_rows(metadata %>% 
               filter((collection_date > today()) | 
@@ -97,7 +98,7 @@ suspect_date <- read_csv('/mnt/data/suspect_date.csv',
               select(accession_id)) %>% 
   unique()
 
-write_csv(suspect_date, '/mnt/data/suspect_date.csv')
+
 
 metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['accession_id']
 
@@ -176,4 +177,6 @@ merged_df<-full_join(gisaid_t, owid, by = c("gisaid_collect_date"= "owid_date", 
 #write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
 #Domino
 write.csv(merged_df, '/mnt/data/processed/gisaid_owid_merged.csv', row.names = FALSE)
+write_csv(suspect_date, '/mnt/data/suspect_date.csv')
+
 #write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')

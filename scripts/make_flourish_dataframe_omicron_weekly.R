@@ -220,8 +220,8 @@ gisaid_t <- gisaid_t %>%
   # create column for 7 day rolling average
   mutate(
     seq_7davg = round(zoo::rollmean(n_new_sequences, 7, fill = NA),2),
-    gisaid_md_seq_omicron_7davg = round(zoo::rollmean(b_1_1_529, 7, fill = NA), 2),
-    pct_omicron_7davg = gisaid_md_seq_omicron_7davg/seq_7davg,
+    #gisaid_md_seq_omicron_7davg = round(zoo::rollmean(b_1_1_529, 7, fill = NA), 2),# remove because we don't have omicron feed anymore
+    #pct_omicron_7davg = gisaid_md_seq_omicron_7davg/seq_7davg, 
     rolling_cases_last_30_days = rollapplyr(owid_new_cases,30,sum, partial = TRUE, align = "right"),
     rolling_cases_last_7_days = rollapplyr(owid_new_cases, 7, sum, partial = TRUE, align = "right"),
     rolling_seq_last_30_days = rollapplyr(n_new_sequences, 30, sum, partial = TRUE, align = "right"),
