@@ -8,19 +8,19 @@
 rm(list = ls())
 
 #------Libraries------------
-# install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-# install.packages("janitor", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-# install.packages("tibble", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-# install.packages("countrycode", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-# install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
-# install.packages("readxl", dependencies=TRUE, repos='http://cran.us.r-project.org')
-# install.packages("zoo", dependencies=TRUE, repos='http://cran.us.r-project.org')
-# install.packages("R.utils", dependencies=TRUE, repos='http://cran.us.r-project.org')
-# install.packages("stringr", dependencies=TRUE, repos='http://cran.us.r-project.org')
-# install.packages("tsoutliers", dependencies=TRUE, repos='http://cran.us.r-project.org')
-# install.packages("dplyr", dependencies=TRUE, repos='http://cran.us.r-project.org')
-# install.packages("scales", dependencies=TRUE, repos='http://cran.us.r-project.org')
-# install.packages("readr", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("janitor", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("tibble", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("countrycode", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
+install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("readxl", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("zoo", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("R.utils", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("stringr", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("tsoutliers", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("dplyr", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("scales", dependencies=TRUE, repos='http://cran.us.r-project.org')
+install.packages("readr", dependencies=TRUE, repos='http://cran.us.r-project.org')
 
 library(tidyverse) # data wrangling
 library(tibble) # data wrangling
