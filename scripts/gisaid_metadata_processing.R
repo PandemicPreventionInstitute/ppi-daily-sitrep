@@ -217,6 +217,6 @@ n_global_cases<-sum(merged_df$owid_new_cases)
 #write_csv(suspect_date, '../data/suspect_date.csv')
 #Domino
 write.csv(merged_df, '/mnt/data/processed/gisaid_owid_merged.csv', row.names = FALSE)
-write_csv(suspect_date, '/mnt/data/suspect_date.csv')
+#write_csv(suspect_date, '/mnt/data/suspect_date.csv')
 
 #write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
