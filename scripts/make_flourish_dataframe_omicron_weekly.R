@@ -43,8 +43,8 @@ today_date<-lubridate::today('EST')
 
 ## Set Domino
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
-GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
-#GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
+#GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
+GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
 OMICRON_DAILY_CASES<-'/mnt/data/raw/omicron_gisaid_feed.csv'
 BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
 BNO_CASES_BY_COUNTRY_DATE<-'/mnt/data/raw/BNO_scraped_master.csv'
@@ -197,7 +197,7 @@ gisaid_raw$country_code[gisaid_raw$country == "Falkland Islands"] <- "FLK"
 gisaid_raw$collection_date <- as.Date(as.character(gisaid_raw$gisaid_collect_date), format = "%Y-%m-%d")
 
 # Put this here when using old metadata download
-gisaid_raw<-gisaid_raw%>%rename(n_new_sequences = all_lineages) 
+#gisaid_raw<-gisaid_raw%>%rename(n_new_sequences = all_lineages) 
 
 gisaid_t <- gisaid_raw%>%select(collection_date, gisaid_country, n_new_sequences,
                                          owid_new_cases, owid_population, country_code, owid_location)
