@@ -88,7 +88,7 @@ metadata<- metadata[metadata$collection_date >= as.Date("2019-12-01", format = "
 metadata <- metadata[metadata$collection_date <= as.Date(Sys.Date(), format = "%Y-%m-%d"),]
 # create masterlist of sequences with collection date in future of when they were submitted
 
-suspect_date <- read_csv('../data/suspect_date.csv',
+suspect_date <- read_csv('/mnt/data/suspect_date.csv',
                          col_types = 'c') %>% 
   bind_rows(metadata %>% 
               filter((collection_date > today()) | 
@@ -97,7 +97,7 @@ suspect_date <- read_csv('../data/suspect_date.csv',
               select(accession_id)) %>% 
   unique()
 
-write_csv(suspect_date, '../data/suspect_date.csv')
+write_csv(suspect_date, '/mnt/data/suspect_date.csv')
 
 metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['accession_id']
 
