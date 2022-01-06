@@ -67,8 +67,13 @@ colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission
 gisaid_metadata<-rbind(first_seq, gisaid_metadata)
 
 #6. Write both files to csvs
-
+# Domino
 write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv', row.names = FALSE)
 write_csv(gisaid_metadata, '/mnt/data/raw/metadata.csv')
+# local
+#write.csv(omicron_gisaid, '../data/raw/omicron_gisaid_feed.csv', row.names = FALSE)
+#write_csv(gisaid_metadata, '../data/raw/metadata.csv')
+
+
 
 #done!

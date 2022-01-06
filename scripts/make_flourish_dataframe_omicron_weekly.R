@@ -202,15 +202,15 @@ gisaid_raw$collection_date <- as.Date(as.character(gisaid_raw$gisaid_collect_dat
 gisaid_t <- gisaid_raw%>%select(collection_date, gisaid_country, n_new_sequences,
                                          owid_new_cases, owid_population, country_code, owid_location)
 
-# CHECK THAT DATA SET HAS COMPLETED DATE TIME SERIES
-collection_date <- seq.Date(first_date, LAST_DATA_PULL_DATE, by = "day")
-country_code <-unique(gisaid_t$country_code)
-date_country<-expand_grid(collection_date, country_code)
-gisaid_t<-left_join(date_country,gisaid_t, by = c("country_code", "collection_date"))
-
-# Fill in the NAs on the values 
-gisaid_t$n_new_sequences[is.na(gisaid_t$n_new_sequences)]<-0
-gisaid_t$owid_new_cases[is.na(gisaid_t$owid_new_cases)]<-0
+# # CHECK THAT DATA SET HAS COMPLETED DATE TIME SERIES (commented out because we do this in gisaid_metatdata_processing.R)
+# collection_date <- seq.Date(first_date, LAST_DATA_PULL_DATE, by = "day")
+# country_code <-unique(gisaid_t$country_code)
+# date_country<-expand_grid(collection_date, country_code)
+# gisaid_t<-left_join(date_country,gisaid_t, by = c("country_code", "collection_date"))
+# 
+# # Fill in the NAs on the values 
+# gisaid_t$n_new_sequences[is.na(gisaid_t$n_new_sequences)]<-0
+# gisaid_t$owid_new_cases[is.na(gisaid_t$owid_new_cases)]<-0
 
   
 # find 7 day average of new sequences
