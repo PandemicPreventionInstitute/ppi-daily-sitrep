@@ -48,6 +48,7 @@ FUTURE_DATE_PATH<-'/mnt/data/suspect_date.csv'
 FIRST_DATE<-"2019-12-01" # earliest date we want COVID cases for 
 #-----Download and process------
 
+
 #1. Download data
 metadata<-read.csv(GISAID_METADATA_PATH)
 owid_raw<-read_csv(OWID_PATH)
@@ -91,36 +92,27 @@ metadata$submission_date<-ymd(metadata$submission_date)
 metadata<- metadata[metadata$collection_date >= as.Date(FIRST_DATE, format = "%Y-%m-%d"),]
 # exclude submissions dated to the future
 metadata <- metadata[metadata$collection_date <= as.Date(Sys.Date(), format = "%Y-%m-%d"),]
-
-# # create masterlist of sequences with collection date in future of when they were submitted (commenting out for run-time temporarily)
-# suspect_date <- read_csv(FUTURE_DATE_PATH,
-#                          col_types = 'c') %>% 
-#   bind_rows(metadata %>% 
-#               filter((collection_date > today()) | 
-#                        (submission_date > today()) |
-#                        (collection_date > submission_date)) %>% 
-#               select(accession_id)) %>% 
-#   unique()
-# 
-# 
-# 
-# metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['accession_id']
+# create masterlist of sequences with collection date in future of when they were submitted
 
 # 5. Exclude sequences in Next Strain exclusion list by assession ID
 
-## WRONG: NEEDS TO USE NAME NOT ACCESSION ID -- NEED TO UPDATE FEED
-#ns_exclude <- read_delim('https://raw.githubusercontent.com/nextstrain/ncov/master/defaults/exclude.txt',
-#                         delim = '\n',
-#                         col_names = 'accession_id',
-#                         col_types = 'c') %>% 
-#  filter(stringr::str_starts(string = accession_id,
-#                              pattern = '#',
-#                              negate = TRUE),
-#         accession_id != '') %>% 
-#  mutate(accession_id = paste0('hCOV-19/', accession_id))
-
 # 6. Generate country codes from GISAID country names
 metadata$code <- countrycode(metadata$country, origin = 'country.name', destination = 'iso3c')
+
+# inserts missing country codes
+metadata$code[metadata$country == "Micronesia (country)"] <- "FSM"
+metadata$code[metadata$country == "Timor"] <- "TLS"
+metadata$code[metadata$country == "Turks and Caicos Islands"] <- "TCA"
+metadata$code[metadata$country == "Nauru"] <- "NRU"
+metadata$code[metadata$country == "Kosovo"] <- "XKX"
+metadata$code[metadata$country == "Guernsey"] <- "GGY"
+metadata$code[metadata$country == "Falkland Islands"] <- "FLK"
+
+# Remove any rows that don't contain country codes (i.e. not a valid country)
+metadata<-metadata[!is.na(metadata$code),]
+# Remove any rows that don't contain valid collection or submission dates
+metadata<-metadata[!is.na(metadata$collection_date),]
+metadata<-metadata[!is.na(metadata$submission_date),]
 
 # # 7. Calculate the percent of cases sequenced in last 30 days and previous 30 days GLOBALLY
 # date_seq = as.character.Date(seq(ymd('2020-1-1'), today(), by = 'day'))
@@ -194,7 +186,6 @@ owid<-owid%>%mutate(continent =  countrycode(iso_code, origin = 'iso3c', destina
 # append owid to colnames
 colnames(owid) <- paste("owid", colnames(owid),sep="_")
 
-#Aggregate owid country codes
 
 
 
@@ -205,6 +196,10 @@ merged_df<-left_join(owid, gisaid_t, by = c("owid_date"="gisaid_collect_date",  
 merged_df$n_new_sequences[is.na(merged_df$n_new_sequences)]<-0
 merged_df$owid_new_cases[is.na(merged_df$owid_new_cases)]<-0
 merged_df$owid_new_cases_smoothed[is.na(merged_df$owid_new_cases_smoothed)]<-0
+
+merged_df<-merged_df%>%rename(gisaid_collect_date= owid_date,
+                              country_code = owid_iso_code)
+
 
 n_global_cases<-sum(merged_df$owid_new_cases)
 

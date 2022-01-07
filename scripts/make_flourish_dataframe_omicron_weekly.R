@@ -175,29 +175,8 @@ gisaid_raw <- read.csv(GISAID_DAILY_PATH) %>% # raw refers to all variants, by c
   # standardize names with this janitor function
   clean_names()
 
-# generate country codes from GISAID country names
-gisaid_raw$country_code <- countrycode(gisaid_raw$gisaid_country, origin = 'country.name', destination = 'iso3c')
-
-# Remove any rows that don't contain country codes (i.e. not a valid country)
-gisaid_raw<-gisaid_raw[!is.na(gisaid_raw$country_code),]
-
-# generate country codes from OWID country names
-gisaid_raw$country_code_owid <- countrycode(gisaid_raw$owid_location, origin = 'country.name', destination = 'iso3c')
-
-# inserts missing country codes
-gisaid_raw$country_code[gisaid_raw$country == "Micronesia (country)"] <- "FSM"
-gisaid_raw$country_code[gisaid_raw$country == "Timor"] <- "TLS"
-gisaid_raw$country_code[gisaid_raw$country == "Turks and Caicos Islands"] <- "TCA"
-gisaid_raw$country_code[gisaid_raw$country == "Nauru"] <- "NRU"
-gisaid_raw$country_code[gisaid_raw$country == "Kosovo"] <- "XKX"
-gisaid_raw$country_code[gisaid_raw$country == "Guernsey"] <- "GGY"
-gisaid_raw$country_code[gisaid_raw$country == "Falkland Islands"] <- "FLK"
-
 # parse collection dates as dates (note this uses the imputed day 15 from metadata processing script)
-gisaid_raw$gisaid_collect_date <- as.Date(as.character(gisaid_raw$gisaid_collect_date), format = "%Y-%m-%d")
-
-# Put this here when using old metadata download
-gisaid_raw<-gisaid_raw%>%rename(collection_date = gisaid_collect_date) 
+gisaid_raw$collection_date <- as.Date(as.character(gisaid_raw$gisaid_collect_date), format = "%Y-%m-%d")
 
 gisaid_t <- gisaid_raw%>%select(collection_date, gisaid_country, n_new_sequences,
                                          owid_new_cases, owid_population, country_code, owid_location)
