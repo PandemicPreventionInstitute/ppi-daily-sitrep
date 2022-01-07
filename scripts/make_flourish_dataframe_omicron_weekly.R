@@ -450,12 +450,12 @@ gisaid_global_t<-gisaid_t%>%group_by(collection_date)%>%
   summarise(
     rolling_cases_last_7_days = sum(rolling_cases_last_7_days),
     rolling_cases_last_30_days = sum(rolling_cases_last_30_days),
-    rolling_seq_last_30_days = sum(rolling_seq_last_30_days),
+    #rolling_seq_last_30_days = sum(rolling_seq_last_30_days),
     n_new_sequences = sum(n_new_sequences),
     n_new_cases = sum(owid_new_cases)
   )%>%
   mutate(
-    percent_of_cases_seq_last_30_days = 100*rolling_seq_last_30_days/rolling_cases_last_30_days,
+    #percent_of_cases_seq_last_30_days = 100*rolling_seq_last_30_days/rolling_cases_last_30_days,
     new_cases_7d_avg = round(zoo::rollmean(n_new_cases, 7, fill = NA),2),
     new_seq_7d_avg = round(zoo::rollmean(n_new_sequences, 7, fill = NA),2)
   )
@@ -469,7 +469,13 @@ seq_last_30_days<-read_csv(SEQUENCES_LAST_30_DAYS)%>%
   rename(cases_seq_last_30_days = n,
          cases_seq_last_30_days_lag_30 = n_lag_30)%>%
   select(date, cases_seq_last_30_days, cases_seq_last_30_days_lag_30)%>%
-  filter(date<=LAST_DATA_PULL_DATE)
+ filter(date<=LAST_DATA_PULL_DATE & date>=as.Date(FIRST_DATE))
+
+toplines_t<-full_join(gisaid_global_t, seq_last_30_days, by = c("collection_date" = "date"))
+toplines_t<-toplines_t%>%mutate(
+  pct_cases_seq_30_day_window = round(100*cases_seq_last_30_days/rolling_cases_last_30_days,1)
+)
+
 
 
 global_t<-full_join(omicron_global_t,gisaid_global_t, by = c("submission_date" = "collection_date"))
@@ -483,107 +489,107 @@ global_t<-global_t%>%rename(n_omicron_seq = n_seq_GISAID, n_omicron_cases = n_ca
 
 
 # -------- Make the toplines -------------------------------------------------------------
-today <- lubridate::today('EST')
-global_today<-global_t%>%filter(submission_date==(today-6) | # grab todaya nd a week ago
-                                submission_date==today)%>%
-              select(submission_date, n_omicron_cases,n_countries_all, n_omicron_seq)%>%
- rename(n_omicroncases = n_omicron_cases, 
-         n_countries = n_countries_all, 
-         n_omicronseq = n_omicron_seq)%>%
-  mutate(change_omicroncases = diff(n_omicroncases),
-         change_countries = diff(n_countries),
-         change_omicronseq = diff(n_omicronseq))%>%
-  filter(submission_date == today)%>%
-  mutate(pctchange_omicroncases = round(100*change_omicroncases/(n_omicroncases - change_omicroncases),1),
-         pctchange_countries = round(100*change_countries/(n_countries - change_countries),1),
-         pctchange_omicronseq = round(100*change_omicronseq/(n_omicronseq - change_omicronseq),1))
-
-# Pivot the dataframe so sources are rows and the number, increase, and percent change are columns
-topline_df<-global_today%>%pivot_longer(
-  cols = !submission_date,
-  names_to = c("metric", "type"),
-               names_sep = "_",
-               values_to = "value")%>%
-  select(!submission_date)%>%pivot_wider(
-  names_from = metric,
-  values_from = value
-)
-# Remove the sequences one since we're  not suing currently
-topline_df<-topline_df%>%filter(type!="omicronseq")
-
-
-
-# Find the total number, raw change, and % change of cases reported as of yesterday
-cases_recent<-global_t%>%filter(submission_date==LAST_DATA_PULL_DATE)%>%
-  select(submission_date, rolling_cases_last_7_days, n_new_cases, rolling_cases_lag_7)%>%
-  mutate(change_cases_rolling_7_day_sum = (rolling_cases_last_7_days - rolling_cases_lag_7),
-         pctchange_cases_rolling_7_day_sum = round(100*change_cases_rolling_7_day_sum/(rolling_cases_lag_7),1))%>%
-  select(!submission_date)
-
-# rename so we can bind to toplin df
-cases_df<-cases_recent%>%select(!rolling_cases_lag_7)%>%rename(
-  n = rolling_cases_last_7_days, change = change_cases_rolling_7_day_sum,
-  pctchange = pctchange_cases_rolling_7_day_sum)%>%
-  mutate(type = "global_cases")%>%
-  select(type, n, change, pctchange)
-
-# Combine with the omicron global summary
-topline_df<-rbind(topline_df, cases_df)
-
-
-
-
-
-
-# Do the same with sequences over the last 30 days, need to add column for sequences, by collection date 
-sequences_recent<-global_t%>%filter(submission_date==LAST_DATA_PULL_DATE)%>%
-  select(submission_date,  rolling_seq_last_30_days, rolling_cases_last_30_days, 
-         cases_seq_last_30_days_lag_30,rolling_cases_lag_30)%>%mutate(
-           percent_of_cases_seq_last_30_days = round(100*rolling_seq_last_30_days/rolling_cases_last_30_days,2),
-           previous_percent_of_cases_seq_30_days = round(100*cases_seq_last_30_days_lag_30/rolling_cases_lag_30,2),
-           change_pct_cases_seq = (percent_of_cases_seq_last_30_days - previous_percent_of_cases_seq_30_days),
-           pctchange_pct_cases_seq = round(100*change_pct_cases_seq/previous_percent_of_cases_seq_30_days,1))
-type = "pct_cases_seq"
-seq_df<-sequences_recent%>%select(!submission_date & !rolling_cases_last_30_days & !rolling_seq_last_30_days
-                                  & !cases_seq_last_30_days_lag_30 & !rolling_cases_lag_30  
-                                  & !previous_percent_of_cases_seq_30_days)%>%rename(
-                                    n = percent_of_cases_seq_last_30_days,
-                                    change = change_pct_cases_seq,
-                                    pctchange = pctchange_pct_cases_seq)%>%
-                                mutate(type = "pct_cases_seq")%>%
-                                select(type, n, change, pctchange)
-
-topline_df<-rbind(topline_df, seq_df)
-
-
-
-
-# Make topline df pretty! *** NOTE THIS IS SUPER HARDCODED IN***
-
-
-# Change all but percent to be formatted with commas!
-topline_df$n[1:3]<-comma_format()(topline_df$n[1:3])
-topline_df$change[1:3]<-comma_format()(topline_df$change[1:3])
-# add percents
-topline_df$n[4]<-paste0(topline_df$n[4], ' %')
-topline_df$change[4]<-paste0(topline_df$change[4], ' %')
-topline_df$pctchange<-paste0(topline_df$pctchange, ' %')
-
-# Add pluses to the changes and percent changes 
-topline_df$change[topline_df$change>0]<-paste0('+ ', topline_df$change[topline_df$change>0])
-topline_df$pctchange[topline_df$pctchange>0]<-paste0('+ ', topline_df$pctchange[topline_df$pctchange>0])
-
-# add column for timeframe 
-topline_df$change_from = c("Last week", "Last week", "7 days ago", "30 days ago")
-
-# Add descriptors of metrics
-topline_df$Metric <-c("Cumulative confirmed Omicron cases", 
-                      "Countries/territories with confirmed Omicron case(s)",
-                      "Total Covid-19 cases reported in the last 7 days",
-                      "Percent of Covid-19 cases sequenced in the last 30 days*")
-
-topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
-  rename(Value = n, `Change (#)` = change, `Change (%)`= pctchange, `Change from` = change_from)
+# today <- lubridate::today('EST')
+# global_today<-global_t%>%filter(submission_date==(today-6) | # grab todaya nd a week ago
+#                                 submission_date==today)%>%
+#               select(submission_date, n_omicron_cases,n_countries_all, n_omicron_seq)%>%
+#  rename(n_omicroncases = n_omicron_cases, 
+#          n_countries = n_countries_all, 
+#          n_omicronseq = n_omicron_seq)%>%
+#   mutate(change_omicroncases = diff(n_omicroncases),
+#          change_countries = diff(n_countries),
+#          change_omicronseq = diff(n_omicronseq))%>%
+#   filter(submission_date == today)%>%
+#   mutate(pctchange_omicroncases = round(100*change_omicroncases/(n_omicroncases - change_omicroncases),1),
+#          pctchange_countries = round(100*change_countries/(n_countries - change_countries),1),
+#          pctchange_omicronseq = round(100*change_omicronseq/(n_omicronseq - change_omicronseq),1))
+# 
+# # Pivot the dataframe so sources are rows and the number, increase, and percent change are columns
+# topline_df<-global_today%>%pivot_longer(
+#   cols = !submission_date,
+#   names_to = c("metric", "type"),
+#                names_sep = "_",
+#                values_to = "value")%>%
+#   select(!submission_date)%>%pivot_wider(
+#   names_from = metric,
+#   values_from = value
+# )
+# # Remove the sequences one since we're  not suing currently
+# topline_df<-topline_df%>%filter(type!="omicronseq")
+# 
+# 
+# 
+# # Find the total number, raw change, and % change of cases reported as of yesterday
+# cases_recent<-global_t%>%filter(submission_date==LAST_DATA_PULL_DATE)%>%
+#   select(submission_date, rolling_cases_last_7_days, n_new_cases, rolling_cases_lag_7)%>%
+#   mutate(change_cases_rolling_7_day_sum = (rolling_cases_last_7_days - rolling_cases_lag_7),
+#          pctchange_cases_rolling_7_day_sum = round(100*change_cases_rolling_7_day_sum/(rolling_cases_lag_7),1))%>%
+#   select(!submission_date)
+# 
+# # rename so we can bind to toplin df
+# cases_df<-cases_recent%>%select(!rolling_cases_lag_7)%>%rename(
+#   n = rolling_cases_last_7_days, change = change_cases_rolling_7_day_sum,
+#   pctchange = pctchange_cases_rolling_7_day_sum)%>%
+#   mutate(type = "global_cases")%>%
+#   select(type, n, change, pctchange)
+# 
+# # Combine with the omicron global summary
+# topline_df<-rbind(topline_df, cases_df)
+# 
+# 
+# 
+# 
+# 
+# 
+# # Do the same with sequences over the last 30 days, need to add column for sequences, by collection date 
+# sequences_recent<-global_t%>%filter(submission_date==LAST_DATA_PULL_DATE)%>%
+#   select(submission_date,  rolling_seq_last_30_days, rolling_cases_last_30_days, 
+#          cases_seq_last_30_days_lag_30,rolling_cases_lag_30)%>%mutate(
+#            percent_of_cases_seq_last_30_days = round(100*rolling_seq_last_30_days/rolling_cases_last_30_days,2),
+#            previous_percent_of_cases_seq_30_days = round(100*cases_seq_last_30_days_lag_30/rolling_cases_lag_30,2),
+#            change_pct_cases_seq = (percent_of_cases_seq_last_30_days - previous_percent_of_cases_seq_30_days),
+#            pctchange_pct_cases_seq = round(100*change_pct_cases_seq/previous_percent_of_cases_seq_30_days,1))
+# type = "pct_cases_seq"
+# seq_df<-sequences_recent%>%select(!submission_date & !rolling_cases_last_30_days & !rolling_seq_last_30_days
+#                                   & !cases_seq_last_30_days_lag_30 & !rolling_cases_lag_30  
+#                                   & !previous_percent_of_cases_seq_30_days)%>%rename(
+#                                     n = percent_of_cases_seq_last_30_days,
+#                                     change = change_pct_cases_seq,
+#                                     pctchange = pctchange_pct_cases_seq)%>%
+#                                 mutate(type = "pct_cases_seq")%>%
+#                                 select(type, n, change, pctchange)
+# 
+# topline_df<-rbind(topline_df, seq_df)
+# 
+# 
+# 
+# 
+# # Make topline df pretty! *** NOTE THIS IS SUPER HARDCODED IN***
+# 
+# 
+# # Change all but percent to be formatted with commas!
+# topline_df$n[1:3]<-comma_format()(topline_df$n[1:3])
+# topline_df$change[1:3]<-comma_format()(topline_df$change[1:3])
+# # add percents
+# topline_df$n[4]<-paste0(topline_df$n[4], ' %')
+# topline_df$change[4]<-paste0(topline_df$change[4], ' %')
+# topline_df$pctchange<-paste0(topline_df$pctchange, ' %')
+# 
+# # Add pluses to the changes and percent changes 
+# topline_df$change[topline_df$change>0]<-paste0('+ ', topline_df$change[topline_df$change>0])
+# topline_df$pctchange[topline_df$pctchange>0]<-paste0('+ ', topline_df$pctchange[topline_df$pctchange>0])
+# 
+# # add column for timeframe 
+# topline_df$change_from = c("Last week", "Last week", "7 days ago", "30 days ago")
+# 
+# # Add descriptors of metrics
+# topline_df$Metric <-c("Cumulative confirmed Omicron cases", 
+#                       "Countries/territories with confirmed Omicron case(s)",
+#                       "Total Covid-19 cases reported in the last 7 days",
+#                       "Percent of Covid-19 cases sequenced in the last 30 days*")
+# 
+# topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
+#   rename(Value = n, `Change (#)` = change, `Change (%)`= pctchange, `Change from` = change_from)
 
 
 # ----- Output paths ------------------------------------------------------
@@ -591,11 +597,11 @@ topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
 # Domino path
 write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
 write.csv(omicron_global_summary, '/mnt/data/processed/sitrep_summary.csv')
-write.csv(topline_df, '/mnt/data/processed/topline_df_weekly.csv')
+#write.csv(topline_df, '/mnt/data/processed/topline_df_weekly.csv')
 write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
 write.csv(global_t, "/mnt/data/processed/all_metrics_global_t.csv")
 write.csv(GISAID_omicron_t, "/mnt/data/processed/GISAID_omicron_t.csv")
-
+write_csv(toplines_t, '/mnt/data/processed/processed_toplines_t.csv')
 
 # local path
 #write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv") # omicron by country currently
