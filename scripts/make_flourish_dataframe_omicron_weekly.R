@@ -64,6 +64,7 @@ LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/static/country_lat_long_names.csv'
 # LAT_LONG_FOR_FLOURISH_PATH<-'../data/static/country_lat_long_names.csv'
 
 LAST_DATA_PULL_DATE<-as.Date(substr(lubridate::now('EST'), 1, 10))-days(1) # Make this based off of yesterday!
+FIRST_DATE<-"2019-12-01"
 TIME_WINDOW <- 29 # since we will include the reference data
 TIME_WINDOW_WEEK<- 6 # since will include the reference date
 TIME_SERIES_WINDOW<- 89 # last 90 days?
