@@ -32,7 +32,7 @@ library(zoo)
 
 GISAID_METADATA_PATH<-'/mnt/data/raw/metadata.csv' # API path
 df<-read_csv(GISAID_METADATA_PATH) %>%
-  filter(collection_date > ymd('2020-1-1'))
+  filter(collection_date > ymd('2019-12-01'))
 
 
 
@@ -40,7 +40,7 @@ df<-read_csv(GISAID_METADATA_PATH) %>%
 
 # Set up arrays -----------------------------------------------------------
 
-date_seq = as.character.Date(seq(ymd("2020-12-01"), today()-1, by = 'day'))
+date_seq = as.character.Date(seq(ymd("2019-12-01"), today()-1, by = 'day'))
 
 results = vector(mode = 'integer',
                  length = length(date_seq))
