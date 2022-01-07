@@ -194,10 +194,10 @@ gisaid_raw$country_code[gisaid_raw$country == "Guernsey"] <- "GGY"
 gisaid_raw$country_code[gisaid_raw$country == "Falkland Islands"] <- "FLK"
 
 # parse collection dates as dates (note this uses the imputed day 15 from metadata processing script)
-gisaid_raw$collection_date <- as.Date(as.character(gisaid_raw$gisaid_collect_date), format = "%Y-%m-%d")
+gisaid_raw$gisaid_collect_date <- as.Date(as.character(gisaid_raw$gisaid_collect_date), format = "%Y-%m-%d")
 
 # Put this here when using old metadata download
-#gisaid_raw<-gisaid_raw%>%rename(n_new_sequences = all_lineages) 
+gisaid_raw<-gisaid_raw%>%rename(collection_date = gisaid_collect_date) 
 
 gisaid_t <- gisaid_raw%>%select(collection_date, gisaid_country, n_new_sequences,
                                          owid_new_cases, owid_population, country_code, owid_location)
