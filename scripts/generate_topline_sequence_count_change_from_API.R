@@ -8,11 +8,13 @@
 
 #getwd()
 
+USE_CASE = 'domino' # 'domino or local'
 # Libraries ---------------------------------------------------------------
+if (USE_CASE == 'domino'){
 install.packages("tidyverse", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("lubridate", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("zoo", dependencies=TRUE, repos='http://cran.us.r-project.org')
-
+}
 library(tidyverse)
 library(lubridate)
 library(zoo)
@@ -20,11 +22,14 @@ library(zoo)
 # Load data ---------------------------------------------------------------
 
 #local path
-#GISAID_METADATA_PATH<-'../data/raw/metadata.csv'
-
+if (USE_CASE == 'local'){
+GISAID_METADATA_PATH<-'../data/raw/metadata.csv'
+}
 #Domino paths
-#GISAID_METADATA_PATH<-'/mnt/data/raw/metadata.csv' # API path
+if (USE_CASE == 'domino'){
+GISAID_METADATA_PATH<-'/mnt/data/raw/metadata.csv' # API path
 #GISAID_METADATA_PATH<-'/mnt/data/processed/inital_clean_metadata.csv'
+}
 
 #df <- read_csv(GISAID_METADATA_PATH,
                #col_types = 'iTTlcc') %>% 
@@ -75,8 +80,10 @@ combined_df <- combined_df %>%
 # Save time series --------------------------------------------------------
 
 # Domino path
+if (USE_CASE == 'domino'){
 write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
-
+}
 # local path
-# write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
-
+if (USE_CASE == 'local'){
+write_csv(combined_df, '../data/processed/sequences_last_30_days.csv')
+}

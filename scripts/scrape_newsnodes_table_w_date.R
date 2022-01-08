@@ -2,24 +2,30 @@
 
 # local set working dir
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+rm(list = ls())
+USE_CASE = 'domino' # 'domino' or 'local'
 
 
-# Domino wd
-getwd()
 
 # Libraries ---------------------------------------------------------------
-rm(list = ls())
-
+if (USE_CASE == 'domino'){
 install.packages("rvest", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("lubridate", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("countrycode", dependencies=TRUE, repos='http://cran.us.r-project.org')
-
+}
 library(rvest)
 library(tidyverse)
 library(lubridate)
 library(countrycode)
 
+# Filepaths ---------------------------------------------------------------
+if (USE_CASE == 'domino'){
+SCRAPER_MASTER_PATH<-'/mnt/data/raw/BNO_scraped_master.csv'
+}
+if (USE_CASE == 'local'){
+SCRAPER_MASTER_PATH<-'/mnt/data/raw/BNO_scraped_master.csv'
+}
 # Scrape webpage ----------------------------------------------------------
 
 url <- paste0("https://newsnodes.com/nu_tracker")
@@ -71,23 +77,19 @@ clean_table<-clean_table%>%
 
 date <- str_replace(substr(lubridate::now('EST'), 1, 13), ' ', '-')
 
-# Domino path
+# Daily file save
+if (USE_CASE == 'domino'){
 write_csv(clean_table, paste0('/mnt/data/raw/daily_BNO_file/', date, '.csv'))
-# write_csv(USA_table, paste0('/mnt/data/raw/daily_BNO_USA_file/', date, '.csv'))
+}
+if (USE_CASE == 'local'){
+write_csv(clean_table, paste0('../data/raw/daily_BNO_file/', date, '.csv'))
+}
 
-# local path
-# write_csv(clean_table, paste0('../data/raw/daily_BNO_file/', date, '.csv'))
-# write_csv(USA_table, paste0('../data/raw/daily_BNO_USA_file/', date, '.csv'))
 
 # Save updated master file ------------------------------------------------
 
-# Domino path
-master <- read_csv('/mnt/data/raw/BNO_scraped_master.csv')
-
-# # local path
-# master <- read_csv('../data/raw/BNO_scraped_master.csv')
+master <- read_csv(SCRAPER_MASTER_PATH)
 
 master %>% 
     rbind(clean_table) %>% 
-    #write_csv('../data/raw/BNO_scraped_master.csv') # local path
-    write_csv('/mnt/data/raw/BNO_scraped_master.csv') # Domino path
+    write_csv(SCRAPER_MASTER_PATH)

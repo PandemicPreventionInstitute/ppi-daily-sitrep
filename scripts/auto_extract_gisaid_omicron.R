@@ -2,15 +2,17 @@
 #Autodownload meta-data from GISAID
 #Dec 28th 2021
 rm(list = ls())
+USE_CASE = 'domino' # 'domino' or 'local'
 ###########
 #Libraries#
 ###########
+if (USE_CASE == 'domino'){
 install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("janitor", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("httr", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("countrycode", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("lubridate", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-
+}
 library(httr)
 library(tidyverse)
 library(janitor)
@@ -20,7 +22,12 @@ library(lubridate)
 #########
 #Globals#
 #########
+if (USE_CASE =='domino'){
 secrets <- read.csv("/mnt/data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
+}
+if (USE_CASE =='local'){
+    secrets <- read.csv("../data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
+}
 user <- as.character(secrets[1,1])
 pw <- as.character(secrets[2,1])
 
@@ -68,11 +75,15 @@ gisaid_metadata<-rbind(first_seq, gisaid_metadata)
 
 #6. Write both files to csvs
 # Domino
+if (USE_CASE == 'domino'){
 write.csv(omicron_gisaid, '/mnt/data/raw/omicron_gisaid_feed.csv', row.names = FALSE)
 write_csv(gisaid_metadata, '/mnt/data/raw/metadata.csv')
+}
 # local
-#write.csv(omicron_gisaid, '../data/raw/omicron_gisaid_feed.csv', row.names = FALSE)
-#write_csv(gisaid_metadata, '../data/raw/metadata.csv')
+if (USE_CASE == 'local'){
+write.csv(omicron_gisaid, '../data/raw/omicron_gisaid_feed.csv', row.names = FALSE)
+write_csv(gisaid_metadata, '../data/raw/metadata.csv')
+}
 
 
 

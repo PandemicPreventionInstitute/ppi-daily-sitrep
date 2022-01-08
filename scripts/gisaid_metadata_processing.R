@@ -6,8 +6,10 @@
 
 #Jan 3rd 2022
 rm(list = ls())
+USE_CASE = 'domino' # 'domino' or 'local'
 
 #------Libraries------------
+if (USE_CASE== 'domino'){
 install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("janitor", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("tibble", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
@@ -21,6 +23,7 @@ install.packages("tsoutliers", dependencies=TRUE, repos='http://cran.us.r-projec
 install.packages("dplyr", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("scales", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("readr", dependencies=TRUE, repos='http://cran.us.r-project.org')
+}
 
 library(tidyverse) # data wrangling
 library(tibble) # data wrangling
@@ -37,14 +40,17 @@ library(readr) # read_csv
 
 #-----Filepaths------------
 #local
-#GISAID_METADATA_PATH<-"../data/raw/metadata.csv" # from extracted datastream
-#OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
-#FUTURE_DATE_PATH<-'../data/suspect_date.csv'
+if (USE_CASE == 'local'){
+GISAID_METADATA_PATH<-"../data/raw/metadata.csv" # from extracted datastream
+OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+FUTURE_DATE_PATH<-'../data/suspect_date.csv'
+}
 #Domino
+if (USE_CASE == 'domino'){
 GISAID_METADATA_PATH<-"/mnt/data/raw/metadata.csv" # from extracted datastream
 OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
 FUTURE_DATE_PATH<-'/mnt/data/suspect_date.csv'
-
+}
 FIRST_DATE<-"2019-12-01" # earliest date we want COVID cases for 
 #-----Download and process------
 
@@ -208,10 +214,13 @@ n_global_cases<-sum(merged_df$owid_new_cases)
 #-------Write data to file---------
 
 #local
-#write.csv(merged_df, '../data/processed/gisaid_owid_merged.csv', row.names = FALSE)
+if (USE_CASE == 'local'){
+write.csv(merged_df, '../data/processed/gisaid_owid_merged.csv', row.names = FALSE)
 #write_csv(suspect_date, '../data/suspect_date.csv')
+}
+if (USE_CASE == 'domino'){
 #Domino
 write.csv(merged_df, '/mnt/data/processed/gisaid_owid_merged.csv', row.names = FALSE)
 #write_csv(suspect_date, '/mnt/data/suspect_date.csv')
-
 #write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
+}

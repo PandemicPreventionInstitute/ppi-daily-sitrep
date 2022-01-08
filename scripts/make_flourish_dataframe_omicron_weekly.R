@@ -6,8 +6,13 @@
 
 # This script takes in the GISAID metadata and OWID and find data and finds the recent cases, tests, and sequences
 # It will be used to put the Omicron sequencing data in context
-#---- Libraries----------
+rm(list = ls())
+USE_CASE = 'domino' # options: 'local' or 'domino'
 
+
+
+#---- Libraries----------
+if (USE_CASE == 'domino'){
 install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("janitor", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("tibble", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
@@ -20,7 +25,9 @@ install.packages("stringr", dependencies=TRUE, repos='http://cran.us.r-project.o
 install.packages("tsoutliers", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("dplyr", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("scales", dependencies=TRUE, repos='http://cran.us.r-project.org')
- 
+}
+
+
 library(tidyverse) # data wrangling
 library(tibble) # data wrangling
 library(janitor) # column naming
@@ -35,33 +42,36 @@ library(dplyr) # data wrangling
 library(scales) # comma formatting
  
 # ------ Name data paths and set parameters -------------------------------------------
-rm(list = ls())
 today <- substr(lubridate::now('EST'), 1, 13)
 today <- chartr(old = ' ', new = '-', today)
 today_date<-lubridate::today('EST')
 #today<-"2021-12-22-13"
 
-## Set Domino
+## Set filepaths
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
+
+if (USE_CASE == 'domino'){
 #GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
 GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
 OMICRON_DAILY_CASES<-'/mnt/data/raw/omicron_gisaid_feed.csv'
-BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
+#BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
 BNO_CASES_BY_COUNTRY_DATE<-'/mnt/data/raw/BNO_scraped_master.csv'
 SEQUENCES_LAST_30_DAYS<-'/mnt/data/processed/sequences_last_30_days.csv'
 SHAPEFILES_FOR_FLOURISH_PATH <- '/mnt/data/static/geometric_country_code_name_master_file.txt'
 LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/static/country_lat_long_names.csv'
+}
 
-
-# ## Set local file path names
-# ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
-# GISAID_DAILY_PATH<-'../data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
-# OMICRON_DAILY_CASES<-paste0('../data/processed/metadata_summarized.csv')
-# BNO_CASES_BY_COUNTRY_PATH<-paste0('../data/raw/daily_BNO_file/', today,'.csv')
-# BNO_CASES_BY_COUNTRY_DATE<-'../data/raw/BNO_scraped_master.csv'
-# SEQUENCES_LAST_30_DAYS<-'../data/processed/sequences_last_30_days.csv'
-# SHAPEFILES_FOR_FLOURISH_PATH <- '../data/static/geometric_country_code_name_master_file.txt'
-# LAT_LONG_FOR_FLOURISH_PATH<-'../data/static/country_lat_long_names.csv'
+if (USE_CASE == 'local'){
+ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
+#GISAID_DAILY_PATH<-'../data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
+GISAID_DAILY_PATH<-'../data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
+OMICRON_DAILY_CASES<-'../data/raw/omicron_gisaid_feed.csv'
+#BNO_CASES_BY_COUNTRY_PATH<-paste0('../data/raw/daily_BNO_file/', today,'.csv')
+BNO_CASES_BY_COUNTRY_DATE<-'../data/raw/BNO_scraped_master.csv'
+SEQUENCES_LAST_30_DAYS<-'../data/processed/sequences_last_30_days.csv'
+SHAPEFILES_FOR_FLOURISH_PATH <- '../data/static/geometric_country_code_name_master_file.txt'
+LAT_LONG_FOR_FLOURISH_PATH<-'../data/static/country_lat_long_names.csv'
+}
 
 LAST_DATA_PULL_DATE<-as.Date(substr(lubridate::now('EST'), 1, 10))-days(1) # Make this based off of yesterday!
 FIRST_DATE<-"2019-12-01"
@@ -596,6 +606,7 @@ topline_df<-topline_df%>%select(Metric, n, change, pctchange, change_from)%>%
 # ----- Output paths ------------------------------------------------------
 
 # Domino path
+if (USE_CASE == 'domino'){
 write.csv(omicron_seq_print, "/mnt/data/processed/omicron_seq.csv")
 write.csv(omicron_global_summary, '/mnt/data/processed/sitrep_summary.csv')
 write.csv(topline_df, '/mnt/data/processed/topline_df_weekly.csv')
@@ -603,13 +614,14 @@ write.csv(gisaid_summary_df, "/mnt/data/processed/gisaid_summary_df.csv")
 write.csv(global_t, "/mnt/data/processed/all_metrics_global_t.csv")
 write.csv(GISAID_omicron_t, "/mnt/data/processed/GISAID_omicron_t.csv")
 write_csv(toplines_t, '/mnt/data/processed/processed_toplines_t.csv')
+}
 
-# local path
-#write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv") # omicron by country currently
-#write.csv(topline_df, '../data/processed/topline_df.csv') #toplines for carousel
-#write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv") # country-level metrics for FLourish
-#write.csv(global_t, '../data/processed/all_metrics_global_t.csv') #data for global timecourse
-#write.csv(GISAID_omicron_t, "../data/processed/GISAID_omicron_t.csv")
-
+if (USE_CASE == 'local'){
+write.csv(omicron_seq_print, "../data/processed/omicron_seq.csv") # omicron by country currently
+write.csv(topline_df, '../data/processed/topline_df.csv') #toplines for carousel
+write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df.csv") # country-level metrics for FLourish
+write.csv(global_t, '../data/processed/all_metrics_global_t.csv') #data for global timecourse
+write.csv(GISAID_omicron_t, "../data/processed/GISAID_omicron_t.csv")
+}
 
 
