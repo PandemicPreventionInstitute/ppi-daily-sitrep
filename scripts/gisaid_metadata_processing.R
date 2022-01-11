@@ -7,11 +7,11 @@
 #Jan 3rd 2022
 rm(list = ls())
 rm(list = ls())
-global_var = Sys.getenv("USE_CASE")
-if(global_var == ""){
-  USE_CASE<-'local'
-}
-#USE_CASE = 'domino' # 'domino' or 'local'
+# global_var = Sys.getenv("USE_CASE")
+# if(global_var == ""){
+#   USE_CASE<-'local'
+# }
+USE_CASE = 'domino' # 'domino' or 'local'
 
 #------Libraries------------
 if (USE_CASE== 'domino'){
@@ -124,6 +124,19 @@ metadata<-metadata[!is.na(metadata$code),]
 # Remove any rows that don't contain valid collection or submission dates
 metadata<-metadata[!is.na(metadata$collection_date),]
 metadata<-metadata[!is.na(metadata$submission_date),]
+
+# Read in the list of accession ids with dates that are suspect, check for suspect dates, and add
+suspect_date <- read_csv(FUTURE_DATE_PATH,
+                         col_types = 'c') %>% 
+  bind_rows(metadata %>% 
+              filter((collection_date > today()) | 
+                       (submission_date > today()) |
+                       (collection_date > submission_date)) %>% 
+              select(accession_id)) %>% 
+  unique()
+
+
+metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['accession_id']
 
 # # 7. Calculate the percent of cases sequenced in last 30 days and previous 30 days GLOBALLY
 # date_seq = as.character.Date(seq(ymd('2020-1-1'), today(), by = 'day'))
