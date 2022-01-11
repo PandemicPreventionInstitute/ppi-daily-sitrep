@@ -3,11 +3,11 @@
 #Dec 28th 2021
 rm(list = ls())
 rm(list = ls())
-global_var = Sys.getenv("USE_CASE")
-if(global_var == ""){
+USE_CASE = Sys.getenv("USE_CASE")
+if(USE_CASE == ""){
     USE_CASE<-'local'
 }
-#USE_CASE = 'domino' # 'domino' or 'local'
+#USE_CASE = 'local' # 'domino' or 'local'
 ###########
 #Libraries#
 ###########
