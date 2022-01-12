@@ -597,7 +597,7 @@ topline_df$change[topline_df$change>0]<-paste0('+ ', topline_df$change[topline_d
 topline_df$pctchange[topline_df$pctchange>0]<-paste0('+ ', topline_df$pctchange[topline_df$pctchange>0])
 
 # add column for timeframe
-topline_df$change_from = c("Last week", "Last week", "7 days ago", "30 days ago")
+topline_df$change_from = c("Last week", "Last week", "Last week", "30 days ago")
 
 # Add descriptors of metrics
 topline_df$Metric <-c("Cumulative confirmed Omicron cases",
