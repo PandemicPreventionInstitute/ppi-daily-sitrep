@@ -567,7 +567,7 @@ sequences_recent<-global_t%>%filter(submission_date==LAST_DATA_PULL_DATE)%>%
            change_pct_cases_seq = (percent_of_cases_seq_last_30_days - previous_percent_of_cases_seq_30_days),
            pctchange_pct_cases_seq = round(100*change_pct_cases_seq/previous_percent_of_cases_seq_30_days,1))
 type = "pct_cases_seq"
-seq_df<-sequences_recent%>%select(!submission_date & !rolling_cases_last_30_days & !rolling_seq_last_30_days
+seq_df<-sequences_recent%>%select(!submission_date & !rolling_cases_last_30_days & !cases_seq_last_30_days
                                   & !cases_seq_last_30_days_lag_30 & !rolling_cases_lag_30
                                   & !previous_percent_of_cases_seq_30_days)%>%rename(
                                     n = percent_of_cases_seq_last_30_days,
