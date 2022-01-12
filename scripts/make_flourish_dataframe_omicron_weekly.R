@@ -560,7 +560,7 @@ topline_df<-rbind(topline_df, cases_df)
 
 # Do the same with sequences over the last 30 days, need to add column for sequences, by collection date
 sequences_recent<-global_t%>%filter(submission_date==LAST_DATA_PULL_DATE)%>%
-  select(submission_date,  rolling_seq_last_30_days, rolling_cases_last_30_days,
+  select(submission_date,  cases_seq_last_30_days, rolling_cases_last_30_days,
          cases_seq_last_30_days_lag_30,rolling_cases_lag_30)%>%mutate(
            percent_of_cases_seq_last_30_days = round(100*cases_seq_last_30_days/rolling_cases_last_30_days,2),
            previous_percent_of_cases_seq_30_days = round(100*cases_seq_last_30_days_lag_30/rolling_cases_lag_30,2),
