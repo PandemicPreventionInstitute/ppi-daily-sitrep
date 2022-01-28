@@ -125,17 +125,17 @@ metadata<-metadata[!is.na(metadata$collection_date),]
 metadata<-metadata[!is.na(metadata$submission_date),]
 
 # Read in the list of accession ids with dates that are suspect, check for suspect dates, and add
-suspect_date <- read_csv(FUTURE_DATE_PATH,
-                         col_types = 'c') %>% 
-  bind_rows(metadata %>% 
-              filter((collection_date > today()) | 
-                       (submission_date > today()) |
-                       (collection_date > submission_date)) %>% 
-              select(accession_id)) %>% 
-  unique()
-
-
-metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['accession_id']
+# suspect_date <- read_csv(FUTURE_DATE_PATH,
+#                          col_types = 'c') %>% 
+#   bind_rows(metadata %>% 
+#               filter((collection_date > today()) | 
+#                        (submission_date > today()) |
+#                        (collection_date > submission_date)) %>% 
+#               select(accession_id)) %>% 
+#   unique()
+# 
+# 
+# metadata['is_suspect_date'] = metadata['accession_id'] %in% suspect_date['accession_id']
 
 # # 7. Calculate the percent of cases sequenced in last 30 days and previous 30 days GLOBALLY
 # date_seq = as.character.Date(seq(ymd('2020-1-1'), today(), by = 'day'))
@@ -166,6 +166,30 @@ gisaid_t <- metadata %>%
   select(code, collection_date, n_new_sequences)%>%
   rename(country_code = code,
          gisaid_collect_date = collection_date)
+
+# 8. Data frame with total number of ba.1 sequences by country day
+gisaid_t_BA_1<-metadata %>%group_by(code, collection_date) %>%
+  filter(pango_lineage == "BA.1") %>%
+  summarise(ba_1 = n())%>%select(code, collection_date, ba_1)%>%
+  rename(country_code = code,
+         gisaid_collect_date = collection_date)
+gisaid_t<-left_join(gisaid_t, gisaid_t_BA_1, by = c("gisaid_collect_date", "country_code"))
+
+# 9. Data frame with total number of ba.2 sequences by country day
+gisaid_t_BA_2<-metadata %>%group_by(code, collection_date) %>%
+  filter(pango_lineage == "BA.2") %>%
+  summarise(ba_2 = n())%>%select(code, collection_date, ba_2)%>%
+  rename(country_code = code,
+         gisaid_collect_date = collection_date)
+gisaid_t<-left_join(gisaid_t, gisaid_t_BA_2, by = c("gisaid_collect_date", "country_code"))
+
+# 10. All other sequences not ba_1 & ba_2 (presumably some version of delta)
+gisaid_t<-gisaid_t%>%mutate(
+  other = n_new_sequences - ba_1 - ba_2)
+
+
+
+
 
 # Add in code to complete through yesterday with 0s for each country 
 gisaid_collect_date <- seq.Date(as.Date(FIRST_DATE), today()-1, by = "day")
