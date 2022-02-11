@@ -60,8 +60,6 @@ if (USE_CASE == 'domino'){
 #GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
 GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
 OMICRON_DAILY_CASES<-'/mnt/data/raw/omicron_gisaid_feed.csv'
-#BNO_CASES_BY_COUNTRY_PATH<-paste0('/mnt/data/raw/daily_BNO_file/', today,'.csv')
-BNO_CASES_BY_COUNTRY_DATE<-'/mnt/data/raw/BNO_scraped_master.csv'
 SEQUENCES_LAST_30_DAYS<-'/mnt/data/processed/sequences_last_30_days.csv'
 SHAPEFILES_FOR_FLOURISH_PATH <- '/mnt/data/static/geometric_country_code_name_master_file.txt'
 LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/static/country_lat_long_names.csv'
@@ -72,8 +70,6 @@ ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19Track
 #GISAID_DAILY_PATH<-'../data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
 GISAID_DAILY_PATH<-'../data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
 OMICRON_DAILY_CASES<-'../data/raw/omicron_gisaid_feed.csv'
-#BNO_CASES_BY_COUNTRY_PATH<-paste0('../data/raw/daily_BNO_file/', today,'.csv')
-BNO_CASES_BY_COUNTRY_DATE<-'../data/raw/BNO_scraped_master.csv'
 SEQUENCES_LAST_30_DAYS<-'../data/processed/sequences_last_30_days.csv'
 SHAPEFILES_FOR_FLOURISH_PATH <- '../data/static/geometric_country_code_name_master_file.txt'
 LAT_LONG_FOR_FLOURISH_PATH<-'../data/static/country_lat_long_names.csv'
@@ -195,6 +191,7 @@ gisaid_raw <- read.csv(GISAID_DAILY_PATH) %>% # raw refers to all variants, by c
 # parse collection dates as dates (note this uses the imputed day 15 from metadata processing script)
 gisaid_raw$collection_date <- as.Date(as.character(gisaid_raw$gisaid_collect_date), format = "%Y-%m-%d")
 
+
 gisaid_t <- gisaid_raw%>%select(collection_date, gisaid_country, n_new_sequences, ba_1, ba_2, 
                                          owid_new_cases, owid_population, country_code, owid_location)
   
@@ -247,7 +244,8 @@ gisaid_recent_data<-gisaid_recent_data%>%
 cases_in_last_7_days<-gisaid_t%>%filter(collection_date>=(LAST_DATA_PULL_DATE - TIME_WINDOW_WEEK) & 
                                           collection_date<=LAST_DATA_PULL_DATE)%>%
   group_by(country_code)%>%
-  summarise(cases_per_100k_last_7_days = round(100000*sum(owid_new_cases)/max(owid_population, na.rm = TRUE), 1))
+  summarise(cases_per_100k_last_7_days = round(100000*sum(owid_new_cases)/max(owid_population, na.rm = TRUE), 1),
+            pct_cases_BA2_past_7_days = round(100*sum(ba_2, na.rm = T)/sum(n_new_sequences, na.rm = T), 2))
 
 # join with 30 day summary 
 gisaid_recent_data<-left_join(gisaid_recent_data, cases_in_last_7_days, by = "country_code")
@@ -255,7 +253,8 @@ gisaid_recent_data<-left_join(gisaid_recent_data, cases_in_last_7_days, by = "co
 # --- Find number of BA.2 cases submitted by country ---- 
 gisaid_BA2<-gisaid_t%>%
   group_by(country_code)%>%
-  summarise(n_ba_2 = sum(ba_2, na.rm = TRUE))
+  summarise(n_ba_2 = sum(ba_2, na.rm = TRUE),
+            n_sequences = sum(n_new_sequences, na.rm = TRUE))
 
 gisaid_recent_data<-left_join(gisaid_recent_data, gisaid_BA2, by = "country_code")
 
@@ -266,10 +265,14 @@ gisaid_recent_data<-gisaid_recent_data%>%
   mutate(tests_per_100k_in_last_7_days= 100000*tests_in_last_7_days/population_size,
          tests_per_100k_in_last_30_days = 100000*tests_in_last_30_days/population_size,
          positivity_in_last_7_days = cases_per_100k_last_7_days/tests_per_100k_in_last_7_days,
-         positivity_in_last_30_days = cases_per_100k_last_30_days/tests_per_100k_in_last_30_days)
+         positivity_in_last_30_days = cases_per_100k_last_30_days/tests_per_100k_in_last_30_days,
+        pct_cases_BA2_past_30_days = round(100*n_ba_2/n_sequences,2))
 
 
 gisaid_summary_df<-gisaid_recent_data
+
+
+
 
 # Load and join shapefile for flourish
 shapefile <- read_delim(SHAPEFILES_FOR_FLOURISH_PATH, delim = "\t") %>%
@@ -298,7 +301,7 @@ gisaid_summary_df<-distinct(gisaid_summary_df)
 
 US_df<-gisaid_summary_df[gisaid_summary_df$country_code == "USA",]
 
-stopifnot('USA has less than 900 cases per 100k in last 7 days' = US_df$cases_per_100k_last_7_days>900)
+stopifnot('USA has less than 200 cases per 100k in last 7 days' = US_df$cases_per_100k_last_7_days>200)
 stopifnot('USA has no sequencing data' = US_df$percent_of_cases_sequenced_last_30_days >0.0001)
 stopifnot('USA BA2 data not being detected' = US_df$n_ba_2>40)
 
@@ -321,7 +324,7 @@ gisaid_summary_df$pct_cases_seq_w_NA[gisaid_summary_df$pct_cases_seq_w_NA==0]<-N
 gisaid_summary_df<- gisaid_summary_df %>% select(geometry,latitude, longitude, Name, n_ba_2, 
                                                  n_ba_2_NA, ba_2_detected, cases_per_100k_last_7_days, 
                                                  percent_of_cases_sequenced_last_30_days, rounded_pct_cases_seq,
-                                                 pct_cases_seq_w_NA, sequences_in_last_30_days)
+                                                 pct_cases_seq_w_NA, sequences_in_last_30_days, pct_cases_BA2_past_30_days)
 gisaid_summary_df$sequences_in_last_30_days[is.na(gisaid_summary_df$sequences_in_last_30_days)]<-0
 
 
@@ -335,7 +338,7 @@ if (USE_CASE == "domino"){
 }
 
 if (USE_CASE == "local"){
-  write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df_ba2.csv")
+  write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df_ba2_test.csv")
 }
 
 

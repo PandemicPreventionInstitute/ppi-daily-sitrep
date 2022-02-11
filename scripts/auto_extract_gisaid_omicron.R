@@ -1,7 +1,7 @@
 #SV Scarpino
 #Autodownload meta-data from GISAID
 #Dec 28th 2021
-rm(list = ls())
+
 rm(list = ls())
 USE_CASE = Sys.getenv("USE_CASE")
 if(USE_CASE == ""){
@@ -96,3 +96,22 @@ write_csv(gisaid_metadata, '../data/raw/metadata.csv')
 
 
 #done!
+
+# Let's do a quick check of BA.2
+Denmark_recent_sequences<-gisaid_metadata%>%filter(country == "Denmark")%>%filter(collection_date> ymd("2021-11-01"))
+n_BA_2s_in_Denmark = sum(Denmark_recent_sequences$pango_lineage == "BA.2")
+US_recent_sequences<-gisaid_metadata%>%filter(country == "USA")%>%filter(collection_date> ymd("2021-11-01"))
+n_BA_2s_in_US = sum(US_recent_sequences$pango_lineage == "BA.2")
+
+only_BA2<-gisaid_metadata%>%filter(pango_lineage == "BA.2")
+
+
+unique_pango_lineages<-unique(gisaid_metadata$pango_lineage)
+
+unique_pango_lineages<-unique(gisaid_metadata$pango_lineage)
+
+is_BA.2_present<-"BA.2" %in% unique_pango_lineages
+
+if (USE_CASE == 'local'){
+    write.csv(only_BA2, '../data/processed/BA2_submissions_from_feed.csv')
+}
