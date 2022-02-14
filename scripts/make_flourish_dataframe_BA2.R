@@ -328,7 +328,7 @@ gisaid_summary_df<- gisaid_summary_df %>% select(geometry,latitude, longitude, N
 gisaid_summary_df$sequences_in_last_30_days[is.na(gisaid_summary_df$sequences_in_last_30_days)]<-0
 
 
-gisaid_summary_df<-left_join(gisaid_summary_df)
+#gisaid_summary_df<-left_join(gisaid_summary_df)
 # Ready to for output
 gisaid_summary_df<-distinct(gisaid_summary_df)
 
