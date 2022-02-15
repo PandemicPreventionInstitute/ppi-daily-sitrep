@@ -75,10 +75,9 @@ submission_date <- chartr(old = ".", new = "-", substr(first_row[4], 2, 11))
 collection_date <- chartr(old = ".", new = "-", substr(first_row[5], 2, 11))
 clade<-first_row[6]
 pango_lineage<-first_row[7]
-variant<-first_row[8]
-first_seq<-data.frame(accession_id, country, location, submission_date, collection_date, clade, pango_lineage, variant)
+first_seq<-data.frame(accession_id, country, location, submission_date, collection_date, clade, pango_lineage)
 #rename colnames
-colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission_date", "collection_date", "clade", "pango_lineage", "variant")
+colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission_date", "collection_date", "clade", "pango_lineage")
 gisaid_metadata<-rbind(first_seq, gisaid_metadata)
 
 #6. Write both files to csvs
