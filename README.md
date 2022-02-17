@@ -29,5 +29,5 @@
   pct_BA2_dots = same as above but 0 if there were none in the past week but BA.2 has been detected, and NA if it has yet to have been detetected
   pct_BA2_panel = same as above, but if there were no sequences collected and submitted last week, indicate so, and if there were less than 100, put an asterisk
   total_seq_last_week = number of total sequences collected and submitted starting 7 days prior and looking another 7 days back
-- Export /data/processed/gisaid_summary_df_BA2.csv 
+- Exports to ppi-output repo /data/processed/gisaid_summary_df_BA2.csv 
 
