@@ -194,6 +194,8 @@ gisaid_raw$collection_date <- as.Date(as.character(gisaid_raw$gisaid_collect_dat
 
 gisaid_t <- gisaid_raw%>%select(collection_date, gisaid_country, n_new_sequences, ba_1, ba_2, 
                                          owid_new_cases, owid_population, country_code, owid_location)
+gisaid_t$ba_1[is.na(gisaid_t$ba_1)]<-0
+gisaid_t$ba_2[is.na(gisaid_t$ba_2)]<-0
   
 # find 7 day average of new sequences
 gisaid_t <- gisaid_t %>%
@@ -208,19 +210,18 @@ gisaid_t <- gisaid_t %>%
     rolling_cases_last_7_days = rollapplyr(owid_new_cases, 7, sum, partial = TRUE, align = "right"),
     rolling_seq_last_30_days = rollapplyr(n_new_sequences, 30, sum, partial = TRUE, align = "right"),
     percent_of_cases_seq_last_30_days = 100*rolling_seq_last_30_days/rolling_cases_last_30_days,
-    rolling_pct_of_seq_BA2 = rollapplyr(ba_2, 7, sum, partial = TRUE, align = "right")/rollapplyr(n_new_sequences, 7, sum, partial = TRUE, align = "right")
+    rolling_ba2_last_7_days = rollapplyr(ba_2, 7, sum, partial = TRUE, align = "right"),
+    rolling_seq_last_7_days = rollapplyr(n_new_sequences, 7, sum, partial = TRUE, align = "right"),
+    rolling_pct_of_seq_BA2 = round(100*rolling_ba2_last_7_days/rolling_seq_last_7_days,2)
   )
 
 
 # filter to last 60 days 
-gisaid_t <- gisaid_t %>%filter(collection_date>=(LAST_DATA_PULL_DATE -TIME_SERIES_WINDOW) & 
-                                 collection_date<= LAST_DATA_PULL_DATE)
+#gisaid_t <- gisaid_t %>%filter(collection_date>=(LAST_DATA_PULL_DATE -TIME_SERIES_WINDOW) & 
+                                 #collection_date<= LAST_DATA_PULL_DATE)
 # Make sure that the most recent date is yesterday
 stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date) == (today_date - days(1)))
 #write.csv(gisaid_t, "../data/gisaid_t.csv")
-
-
-
 
 # Subset to only recent data to get recent sequences and cases by country
 gisaid_recent_data<-gisaid_t%>%filter(collection_date>=(LAST_DATA_PULL_DATE -TIME_WINDOW) & 
@@ -250,6 +251,7 @@ cases_in_last_7_days<-gisaid_t%>%filter(collection_date>=(LAST_DATA_PULL_DATE - 
 # join with 30 day summary 
 gisaid_recent_data<-left_join(gisaid_recent_data, cases_in_last_7_days, by = "country_code")
 
+
 # --- Find number of BA.2 cases submitted by country ---- 
 gisaid_BA2<-gisaid_t%>%
   group_by(country_code)%>%
@@ -268,9 +270,44 @@ gisaid_recent_data<-gisaid_recent_data%>%
          positivity_in_last_30_days = cases_per_100k_last_30_days/tests_per_100k_in_last_30_days,
         pct_cases_BA2_past_30_days = round(100*n_ba_2/n_sequences,2))
 
+gisaid_BA2_past_week<-gisaid_t%>%filter(collection_date == (LAST_DATA_PULL_DATE - 7))%>%group_by(country_code)%>%
+  summarise(pct_seq_BA_2_last_week = max(rolling_pct_of_seq_BA2),
+            total_seq_last_week = max(rolling_seq_last_7_days))
+
+# If we wanted to compare to the week before
+# gisaid_2_weeks_ago<-gisaid_t%>%filter(collection_date == (LAST_DATA_PULL_DATE - 14))%>%group_by(country_code)%>%
+#   summarise(pct_seq_BA_2_two_weeks_ago = max(rolling_pct_of_seq_BA2),
+#             total_seq_two_weeks_ago = max(rolling_seq_last_7_days))
+# gisaid_BA2_pct<-left_join(gisaid_past_week, gisaid_2_weeks_ago, by = "country_code")
+# gisaid_BA2_pct<-gisaid_BA2_pct%>%mutate(change_since_last_week = pct_seq_BA_2_last_week - pct_seq_BA_2_two_weeks_ago)
+
+gisaid_recent_data<-left_join(gisaid_recent_data, gisaid_BA2_past_week, by = "country_code")
 
 gisaid_summary_df<-gisaid_recent_data
 
+
+
+# Make a column with omicron sequences where absenses are NAs
+gisaid_summary_df$n_ba_2[is.na(gisaid_summary_df$n_ba_2)]<-0 # set countries without ba_2 as 0 
+gisaid_summary_df$n_ba_2_NA<-gisaid_summary_df$n_ba_2 # copy over col with 0s
+gisaid_summary_df$n_ba_2_NA[gisaid_summary_df$n_ba_2 ==0]<-NA # replace 0s with NA
+gisaid_summary_df<-gisaid_summary_df%>%
+  mutate(ba_2_detected = case_when(
+    n_ba_2 >0 ~ 'Yes',
+    n_ba_2 == 0 ~'No',
+    is.na(n_ba_2) ~'No'
+  ))
+
+# Make a column for the dots
+gisaid_summary_df$pct_BA2_dots<-gisaid_summary_df$pct_seq_BA_2_last_week
+gisaid_summary_df$pct_BA2_dots[gisaid_summary_df$ba_2_detected == "No"]<-NA
+gisaid_summary_df$pct_BA2_dots[(gisaid_summary_df$pct_seq_BA_2_last_week == 0 | is.na(gisaid_summary_df$pct_seq_BA_2_last_week)) & gisaid_summary_df$ba_2_detected == "Yes"]<-0
+
+# Make a column for the pop-up
+gisaid_summary_df$pct_BA2_panel<-gisaid_summary_df$pct_seq_BA_2_last_week
+gisaid_summary_df$pct_BA2_panel[gisaid_summary_df$total_seq_last_week<100]<-paste0(gisaid_summary_df$pct_seq_BA_2_last_week[gisaid_summary_df$total_seq_last_week<100], ' %*')
+gisaid_summary_df$pct_BA2_panel[gisaid_summary_df$total_seq_last_week>100]<-paste0(gisaid_summary_df$pct_seq_BA_2_last_week[gisaid_summary_df$total_seq_last_week>100], ' %')
+gisaid_summary_df$pct_BA2_panel[gisaid_summary_df$total_seq_last_week==0]<-'No sequences were submitted from last week'
 
 
 
@@ -286,16 +323,8 @@ lat_long<-read.csv(LAT_LONG_FOR_FLOURISH_PATH)%>% clean_names()%>%
 gisaid_summary_df <-left_join(shapefile, gisaid_summary_df, by = 'country_code')
 gisaid_summary_df <- left_join(lat_long, gisaid_summary_df, by = "country_code")
 
-# Make a column with omicron sequences where absenses are NAs
-gisaid_summary_df$n_ba_2[is.na(gisaid_summary_df$n_ba_2)]<-0 # set countries without ba_2 as 0 
-gisaid_summary_df$n_ba_2_NA<-gisaid_summary_df$n_ba_2 # copy over col with 0s
-gisaid_summary_df$n_ba_2_NA[gisaid_summary_df$n_ba_2 ==0]<-NA # replace 0s with NA
-gisaid_summary_df<-gisaid_summary_df%>%
-  mutate(ba_2_detected = case_when(
-    n_ba_2 >0 ~ 'Yes',
-    n_ba_2 == 0 ~'No',
-    is.na(n_ba_2) ~'No'
-  ))
+
+# Make a column with the % of sequences that are BA.2 for the 
 
 gisaid_summary_df<-distinct(gisaid_summary_df)
 
@@ -304,11 +333,12 @@ US_df<-gisaid_summary_df[gisaid_summary_df$country_code == "USA",]
 stopifnot('USA has less than 200 cases per 100k in last 7 days' = US_df$cases_per_100k_last_7_days>200)
 stopifnot('USA has no sequencing data' = US_df$percent_of_cases_sequenced_last_30_days >0.0001)
 stopifnot('USA BA2 data not being detected' = US_df$n_ba_2>40)
+stopifnot('Country reporting greater than 100% BA.2' = sum(gisaid_summary_df$pct_BA2_dots>100, na.rm = T)==0)
 
 # select cols for flourish and ensure that they're present in the df
 stopifnot ("Error: gisaid_summary_df.csv does not contain all necessary columns" = 
              c('geometry', 'latitude', 'longitude', 'Name', 'n_ba_2',
-               'n_ba_2_NA', 'ba_2_detected', 'cases_per_100k_last_7_days') %in% colnames(gisaid_summary_df))
+               'n_ba_2_NA', 'ba_2_detected', 'cases_per_100k_last_7_days', 'pct_BA2_dots', 'pct_BA2_panel') %in% colnames(gisaid_summary_df))
 
 # Check to make sure cases are filled in for say USA
 stopifnot("Error: case data not in gisaid_summary_df" = 
@@ -324,7 +354,7 @@ gisaid_summary_df$pct_cases_seq_w_NA[gisaid_summary_df$pct_cases_seq_w_NA==0]<-N
 gisaid_summary_df<- gisaid_summary_df %>% select(geometry,latitude, longitude, Name, n_ba_2, 
                                                  n_ba_2_NA, ba_2_detected, cases_per_100k_last_7_days, 
                                                  percent_of_cases_sequenced_last_30_days, rounded_pct_cases_seq,
-                                                 pct_cases_seq_w_NA, sequences_in_last_30_days, pct_cases_BA2_past_30_days)
+                                                 pct_cases_seq_w_NA, sequences_in_last_30_days, pct_seq_BA_2_last_week, pct_BA2_dots, pct_BA2_panel, total_seq_last_week)
 gisaid_summary_df$sequences_in_last_30_days[is.na(gisaid_summary_df$sequences_in_last_30_days)]<-0
 
 
