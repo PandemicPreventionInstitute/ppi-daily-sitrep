@@ -57,20 +57,14 @@ today_date<-lubridate::today('EST')
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
 
 if (USE_CASE == 'domino'){
-#GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
 GISAID_DAILY_PATH<-'/mnt/data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
-OMICRON_DAILY_CASES<-'/mnt/data/raw/omicron_gisaid_feed.csv'
-SEQUENCES_LAST_30_DAYS<-'/mnt/data/processed/sequences_last_30_days.csv'
 SHAPEFILES_FOR_FLOURISH_PATH <- '/mnt/data/static/geometric_country_code_name_master_file.txt'
 LAT_LONG_FOR_FLOURISH_PATH<-'/mnt/data/static/country_lat_long_names.csv'
 }
 
 if (USE_CASE == 'local'){
 ALL_DATA_PATH<- url("https://raw.githubusercontent.com/dsbbfinddx/FINDCov19TrackerData/master/processed/data_all.csv")
-#GISAID_DAILY_PATH<-'../data/processed/gisaid_cleaning_output.csv' # this is the file that comes from Briana's processing file
 GISAID_DAILY_PATH<-'../data/processed/gisaid_owid_merged.csv' # output from gisaid_metadata_processing.R
-OMICRON_DAILY_CASES<-'../data/raw/omicron_gisaid_feed.csv'
-SEQUENCES_LAST_30_DAYS<-'../data/processed/sequences_last_30_days.csv'
 SHAPEFILES_FOR_FLOURISH_PATH <- '../data/static/geometric_country_code_name_master_file.txt'
 LAT_LONG_FOR_FLOURISH_PATH<-'../data/static/country_lat_long_names.csv'
 }
