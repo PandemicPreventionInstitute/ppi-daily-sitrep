@@ -324,7 +324,7 @@ gisaid_summary_df<-distinct(gisaid_summary_df)
 
 US_df<-gisaid_summary_df[gisaid_summary_df$country_code == "USA",]
 
-stopifnot('USA has less than 200 cases per 100k in last 7 days' = US_df$cases_per_100k_last_7_days>200)
+stopifnot('USA has less than 50 cases per 100k in last 7 days' = US_df$cases_per_100k_last_7_days>50)
 stopifnot('USA has no sequencing data' = US_df$percent_of_cases_sequenced_last_30_days >0.0001)
 stopifnot('USA BA2 data not being detected' = US_df$n_ba_2>40)
 stopifnot('Country reporting greater than 100% BA.2' = sum(gisaid_summary_df$pct_BA2_dots>100, na.rm = T)==0)
