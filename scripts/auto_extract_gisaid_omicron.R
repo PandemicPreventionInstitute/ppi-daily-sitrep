@@ -77,7 +77,14 @@ clade<-first_row[6]
 pango_lineage<-first_row[7]
 first_seq<-data.frame(accession_id, country, location, submission_date, collection_date, clade, pango_lineage)
 #rename colnames
-colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission_date", "collection_date", "clade", "pango_lineage")
+if (ncol(gisaid_metadata) == 7){
+    colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission_date", "collection_date", "clade", "pango_lineage")
+}
+if (ncol(gisaid_metadata) == 8){
+    colnames(gisaid_metadata)<- c("accession_id", "country", "location", "submission_date", "collection_date", "clade", "pango_lineage", "variant")
+    gisaid_metadata<-gisaid_metadata%>%select(!variant)
+}
+
 gisaid_metadata<-rbind(first_seq, gisaid_metadata)
 
 #6. Write both files to csvs
@@ -97,9 +104,9 @@ write_csv(gisaid_metadata, '../data/raw/metadata.csv')
 #done!
 
 # Let's do a quick check of BA.2
-Denmark_recent_sequences<-gisaid_metadata%>%filter(country == "Denmark")%>%filter(collection_date> ymd("2021-11-01"))
+Denmark_recent_sequences<-gisaid_metadata[gisaid_metadata$country == "Denmark",]
 n_BA_2s_in_Denmark = sum(Denmark_recent_sequences$pango_lineage == "BA.2")
-US_recent_sequences<-gisaid_metadata%>%filter(country == "USA")%>%filter(collection_date> ymd("2021-11-01"))
+US_recent_sequences<-gisaid_metadata[gisaid_metadata$country == "USA",]
 n_BA_2s_in_US = sum(US_recent_sequences$pango_lineage == "BA.2")
 
 only_BA2<-gisaid_metadata%>%filter(pango_lineage == "BA.2")
