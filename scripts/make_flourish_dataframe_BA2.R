@@ -362,9 +362,10 @@ if (USE_CASE == "domino"){
 }
 
 if (USE_CASE == "local"){
-  write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df_ba2_test.csv")
+  write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df_ba2.csv")
 }
 
 
 
 
+# test
