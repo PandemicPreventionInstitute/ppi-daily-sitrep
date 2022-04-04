@@ -369,3 +369,10 @@ if (USE_CASE == "local"){
 
 
 # test
+
+# Make some figures real quick
+
+subset_df<-gisaid_t%>%filter(country_code == "USA" | country_code == "GBR", collection_date> ymd("2022-01-01"))
+subset_df%>%ggplot() + geom_line(aes(x = collection_date, y = seq_7davg, color = gisaid_country))
+subset_df%>%ggplot() + geom_line(aes(x = collection_date, y = percent_of_cases_seq_last_30_days, color = gisaid_country))
+subset_df%>%ggplot() + geom_line(aes(x = collection_date, y = rolling_cases_last_30_days, color = gisaid_country))

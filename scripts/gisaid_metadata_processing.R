@@ -6,11 +6,13 @@
 
 #Jan 3rd 2022
 rm(list = ls())
-rm(list = ls())
+
 USE_CASE = Sys.getenv("USE_CASE")
 if(USE_CASE == ""){
   USE_CASE<-'local'
 }
+
+FROM_FEED<-FALSE
 
 #------Libraries------------
 if (USE_CASE== 'domino'){
@@ -23,7 +25,6 @@ install.packages("readxl", dependencies=TRUE, repos='http://cran.us.r-project.or
 install.packages("zoo", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("R.utils", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("stringr", dependencies=TRUE, repos='http://cran.us.r-project.org')
-install.packages("tsoutliers", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("dplyr", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("scales", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("readr", dependencies=TRUE, repos='http://cran.us.r-project.org')
@@ -38,7 +39,6 @@ library(readxl) # excel import
 library(zoo) # calculate rolling averages
 library(R.utils) # R utilities
 library(stringr) # to parse strings in R
-library(tsoutliers) # remove outliers
 library(dplyr) # data wrangling
 library(readr) # read_csv
 
@@ -46,6 +46,7 @@ library(readr) # read_csv
 #local
 if (USE_CASE == 'local'){
 GISAID_METADATA_PATH<-"../data/raw/metadata.csv" # from extracted datastream
+GISAID_METADATA_DWNLD_PATH<- "../data/raw/metadata.tsv"
 OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
 FUTURE_DATE_PATH<-'../data/suspect_date.csv'
 }
@@ -60,7 +61,13 @@ FIRST_DATE<-"2019-12-01" # earliest date we want COVID cases for
 
 
 #1. Download data
-metadata<-read.csv(GISAID_METADATA_PATH)
+if (FROM_FEED == TRUE){
+    metadata<-read.csv(GISAID_METADATA_PATH)
+}
+if (FROM_FEED == FALSE){
+    metadata<-read.delim(GISAID_METADATA_DWNLD_PATH)%>%clean_names()%>%
+        filter(host == "Human", type == "betacoronavirus")
+}
 owid_raw<-read_csv(OWID_PATH)
 
 
@@ -254,14 +261,77 @@ n_global_cases<-sum(merged_df$owid_new_cases)
 
 #-------Write data to file---------
 
-#local
+local
 if (USE_CASE == 'local'){
 write.csv(merged_df, '../data/processed/gisaid_owid_merged.csv', row.names = FALSE)
 #write_csv(suspect_date, '../data/suspect_date.csv')
 }
+
 if (USE_CASE == 'domino'){
 #Domino
 write.csv(merged_df, '/mnt/data/processed/gisaid_owid_merged.csv', row.names = FALSE)
 #write_csv(suspect_date, '/mnt/data/suspect_date.csv')
 #write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
 }
+
+
+# Find the number of sequences submitted in the previous week and 30 days over time 
+country_list<-c("USA", "GBR","DEU")
+date_seq = as.character.Date(seq(ymd("2021-11-01"), today()-1, by = 'day'))
+for (j in 1:length(country_list)){
+    df<-metadata%>%filter(code == country_list[j])
+    code <-country_list[j]
+
+    results = vector(mode = 'integer',
+                     length = length(date_seq))
+
+    # Loop through calculation ------------------------------------------------
+    
+    for (i in 1:length(date_seq)){
+        
+        day_iter = ymd(date_seq[i])
+        
+        results[i] <-  df %>% 
+            filter(collection_date >= day_iter - days(29),
+                   collection_date <= day_iter,
+                   submission_date <= day_iter) %>% 
+            nrow()
+        
+        
+    }
+    
+    # Combine date and result arrays into a tibble ----------------------------
+    
+    combined_df <- tibble(date = ymd(date_seq),
+                          n_seq_last_30_d = results)
+    if(j==1){
+        df_t<-cbind(code,combined_df)
+    }
+    
+    else{
+        df_ti<-cbind(code, combined_df)
+        df_t<-rbind(df_t, df_ti)
+    }
+}
+
+df_t<-left_join(df_t, merged_df, by = c("code" = "country_code", "date" = "gisaid_collect_date"))
+
+df_t<-df_t%>%group_by(code)%>%mutate(
+    rolling_cases_last_30_days = rollapplyr(owid_new_cases,30,sum, partial = TRUE, align = "right"),
+    pct_cases_seq_last_30_days = 100*n_seq_last_30_d/rolling_cases_last_30_days)%>%
+    filter(date >= ymd("2021-12-01"))
+
+df_t%>%ggplot() + geom_line(aes(x = date, y = n_seq_last_30_d, color = code)) + 
+    xlab('Date') + ylab('Sequences in prior 30 days') + 
+    ggtitle('Number of sequences that had been submitted in previous 30 days') +theme_bw()
+
+df_t%>%ggplot() + geom_line(aes(x = date, y = pct_cases_seq_last_30_days, color = code)) + 
+    xlab('Date') + ylab('% cases sequenced last 30 days') + 
+    ggtitle('% of cases sequenced last 30 days') +theme_bw()
+
+df_t%>%ggplot() + geom_line(aes(x = date, y = 1e5*rolling_cases_last_30_days/owid_population, color = code)) + 
+    xlab('Date') + ylab('Cases per 100k in last 30 days') + 
+    ggtitle('Cases per 100k in previous 30 days') +theme_bw()
+
+
+
