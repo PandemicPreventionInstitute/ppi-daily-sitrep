@@ -1,12 +1,14 @@
 #SV Scarpino
 #Autodownload meta-data from GISAID
 #Dec 28th 2021
+# test addition for pushing to github
 
 rm(list = ls())
 USE_CASE = Sys.getenv("USE_CASE")
 if(USE_CASE == ""){
     USE_CASE<-'local'
 }
+# Make a test edit
 #USE_CASE = 'local' # 'domino' or 'local'
 ###########
 #Libraries#
@@ -18,13 +20,7 @@ install.packages("httr", dependencies = TRUE, repos = 'http://cran.us.r-project.
 install.packages("countrycode", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 install.packages("lubridate", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
 }
-if (USE_CASE == 'databricks'){
-    install.packages("tidyverse", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-    install.packages("janitor", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-    install.packages("httr", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-    install.packages("countrycode", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-    install.packages("lubridate", dependencies = TRUE, repos = 'http://cran.us.r-project.org')
-}
+
 library(httr)
 library(tidyverse)
 library(janitor)
@@ -37,8 +33,8 @@ library(lubridate)
 if (USE_CASE =='domino'){
 secrets <- read.csv("/mnt/data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
 }
-if (USE_CASE == 'local'){
-    secrets <-read.csv("/tables/ppi-daily-sitrep/data/secrets_gisaid.csv")
+if (USE_CASE == 'databricks'){
+    secrets <-read.csv("/FileStore/tables/ppi-daily-sitrep/data/secrets_gisaid.csv")
 }
 if (USE_CASE =='local'){
     secrets <- read.csv("../data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
