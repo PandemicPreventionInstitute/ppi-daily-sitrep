@@ -5,6 +5,8 @@
 
 rm(list = ls())
 USE_CASE = Sys.getenv("USE_CASE")
+
+
 if(USE_CASE == ""){
     USE_CASE<-'local'
 }
@@ -34,7 +36,7 @@ if (USE_CASE =='domino'){
 secrets <- read.csv("/mnt/data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
 }
 if (USE_CASE == 'databricks'){
-    secrets <-read.csv("/FileStore/tables/ppi-daily-sitrep/data/secrets_gisaid.csv")
+    secrets <-read.csv("/dbfs/FileStore/tables/ppi-daily-sitrep/data/secrets_gisaid.csv")
 }
 if (USE_CASE =='local'){
     secrets <- read.csv("../data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
@@ -103,6 +105,11 @@ write_csv(gisaid_metadata, '/mnt/data/raw/metadata.csv')
 if (USE_CASE == 'local'){
 write.csv(omicron_gisaid, '../data/raw/omicron_gisaid_feed.csv', row.names = FALSE)
 write_csv(gisaid_metadata, '../data/raw/metadata.csv')
+}
+
+if (USE_CASE == 'databricks'){
+    write.csv(omicron_gisaid, '/dbfs/FileStore/tables/ppi-daily-sitrep/omicron_gisaid_feed.csv', header = TRUE, row.names = FALSE)
+    write_csv(gisaid_metadata, '/dbfs/FileStore/tables/ppi-daily-sitrep/metadata.csv', header = TRUE, row.names = FALSE)
 }
 
 
