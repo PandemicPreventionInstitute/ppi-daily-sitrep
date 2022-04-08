@@ -1,5 +1,5 @@
 # test code for databricks
-USE_CASE <-'databricks'
+#USE_CASE <-'databricks'
 
 if (USE_CASE =='domino'){
     secrets <- read.csv("/mnt/data/secrets_gisaid.csv", header = FALSE) #a file with the username on the first row and password on the second row. No header
