@@ -12,7 +12,7 @@ if(USE_CASE == ""){
   USE_CASE<-'local'
 }
 
-FROM_FEED<-FALSE
+FROM_FEED<-TRUE
 
 #------Libraries------------
 if (USE_CASE== 'domino'){
@@ -110,6 +110,9 @@ metadata<- metadata[metadata$collection_date >= as.Date(FIRST_DATE, format = "%Y
 # exclude submissions dated to the future
 metadata <- metadata[metadata$collection_date <= as.Date(Sys.Date(), format = "%Y-%m-%d"),]
 # create masterlist of sequences with collection date in future of when they were submitted
+
+# TEST for update cadence
+stopifnot(' Metadata is not up to to date' = max(metadata$submission_date, na.rm = T) ==today())
 
 # 5. Exclude sequences in Next Strain exclusion list by assession ID
 
