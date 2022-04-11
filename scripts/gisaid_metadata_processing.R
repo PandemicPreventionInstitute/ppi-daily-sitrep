@@ -56,6 +56,13 @@ GISAID_METADATA_PATH<-"/mnt/data/raw/metadata.csv" # from extracted datastream
 OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
 FUTURE_DATE_PATH<-'/mnt/data/suspect_date.csv'
 }
+
+if (USE_CASE == 'databricks'){
+    GISAID_METADATA_PATH<-"/dbfs/FileStore/tables/ppi-daily-sitrep/data/raw/metadata.csv" # from extracted datastream
+    OWID_PATH<-url('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv')
+}
+
+
 FIRST_DATE<-"2019-12-01" # earliest date we want COVID cases for 
 #-----Download and process------
 
