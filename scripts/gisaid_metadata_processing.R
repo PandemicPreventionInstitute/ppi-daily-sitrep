@@ -283,6 +283,14 @@ write.csv(merged_df, '/mnt/data/processed/gisaid_owid_merged.csv', row.names = F
 #write_csv(suspect_date, '/mnt/data/suspect_date.csv')
 #write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
 }
+if (USE_CASE == 'databricks'){
+    #Domino
+    write.csv(merged_df, '/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/gisaid_owid_merged.csv', row.names = FALSE)
+    #write_csv(suspect_date, '/mnt/data/suspect_date.csv')
+    #write_csv(combined_df, '/mnt/data/processed/sequences_last_30_days.csv')
+    print('File saved successfully')
+}
+
 
 
 # Find the number of sequences submitted in the previous week and 30 days over time 

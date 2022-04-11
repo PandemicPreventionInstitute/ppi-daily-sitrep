@@ -108,8 +108,8 @@ write_csv(gisaid_metadata, '../data/raw/metadata.csv')
 }
 
 if (USE_CASE == 'databricks'){
-    write.csv(omicron_gisaid, '/dbfs/FileStore/tables/ppi-daily-sitrep/omicron_gisaid_feed.csv', header = TRUE, row.names = FALSE)
-    write_csv(gisaid_metadata, '/dbfs/FileStore/tables/ppi-daily-sitrep/metadata.csv', header = TRUE, row.names = FALSE)
+    write.csv(omicron_gisaid, '/dbfs/FileStore/tables/ppi-daily-sitrep/omicron_gisaid_feed.csv',  row.names = FALSE)
+    write.csv(gisaid_metadata, '/dbfs/FileStore/tables/ppi-daily-sitrep/metadata.csv', row.names = FALSE)
 }
 
 
