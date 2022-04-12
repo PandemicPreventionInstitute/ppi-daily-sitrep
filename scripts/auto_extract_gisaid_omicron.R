@@ -1,3 +1,5 @@
+#!usr/bin/env Rscript
+
 #SV Scarpino
 #Autodownload meta-data from GISAID
 #Dec 28th 2021
@@ -43,6 +45,7 @@ if (USE_CASE =='local'){
 }
 user <- as.character(secrets[1,1])
 pw <- as.character(secrets[2,1])
+print(secrets)
 
 stopifnot('username is not of type character'= is.character(user))
 
