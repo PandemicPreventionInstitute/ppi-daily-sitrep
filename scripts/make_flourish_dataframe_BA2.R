@@ -28,7 +28,6 @@ install.packages("readxl", dependencies=TRUE, repos='http://cran.us.r-project.or
 install.packages("zoo", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("R.utils", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("stringr", dependencies=TRUE, repos='http://cran.us.r-project.org')
-install.packages("tsoutliers", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("dplyr", dependencies=TRUE, repos='http://cran.us.r-project.org')
 install.packages("scales", dependencies=TRUE, repos='http://cran.us.r-project.org')
 }
@@ -43,7 +42,6 @@ library(readxl) # excel import
 library(zoo) # calculate rolling averages
 library(R.utils) # R utilities
 library(stringr) # to parse strings in R
-library(tsoutliers) # remove outliers
 library(dplyr) # data wrangling
 library(scales) # comma formatting
  

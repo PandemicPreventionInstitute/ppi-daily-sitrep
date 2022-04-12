@@ -5,7 +5,7 @@
 # V1 does not include median and quartiles of lag time calculation
 
 #Jan 3rd 2022
-rm(list = ls())
+#rm(list = ls())
 
 USE_CASE = Sys.getenv("USE_CASE")
 if(USE_CASE == ""){
