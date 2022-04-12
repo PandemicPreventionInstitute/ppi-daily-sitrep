@@ -1,3 +1,5 @@
+#!usr/bin/env Rscript
+
 #SV Scarpino
 #Autodownload meta-data from GISAID
 #Dec 28th 2021
@@ -43,6 +45,7 @@ if (USE_CASE =='local'){
 }
 user <- as.character(secrets[1,1])
 pw <- as.character(secrets[2,1])
+print(secrets)
 
 stopifnot('username is not of type character'= is.character(user))
 
@@ -108,8 +111,8 @@ write_csv(gisaid_metadata, '../data/raw/metadata.csv')
 }
 
 if (USE_CASE == 'databricks'){
-    write.csv(omicron_gisaid, '/dbfs/FileStore/tables/ppi-daily-sitrep/omicron_gisaid_feed.csv', header = TRUE, row.names = FALSE)
-    write_csv(gisaid_metadata, '/dbfs/FileStore/tables/ppi-daily-sitrep/metadata.csv', header = TRUE, row.names = FALSE)
+    write.csv(omicron_gisaid, '/dbfs/FileStore/tables/ppi-daily-sitrep/omicron_gisaid_feed.csv',  row.names = FALSE)
+    write.csv(gisaid_metadata, '/dbfs/FileStore/tables/ppi-daily-sitrep/metadata.csv', row.names = FALSE)
 }
 
 

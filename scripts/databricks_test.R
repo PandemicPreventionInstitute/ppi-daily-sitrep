@@ -18,6 +18,6 @@ user_pw_df<-data.frame(user, pw)
 print(user_pw_df)
 
 if (USE_CASE == 'databricks'){
-    write_csv(user_pw_df, '/dbfs/FileStore/tables/test_db.csv', header = TRUE, row.names = FALSE)
+    write.csv(user_pw_df, '/dbfs/FileStore/tables/test_db.csv', row.names = FALSE)
 }
 
