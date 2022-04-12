@@ -5,7 +5,7 @@
 #Dec 28th 2021
 # test addition for pushing to github
 
-rm(list = ls())
+#rm(list = ls())
 USE_CASE = Sys.getenv("USE_CASE")
 
 
