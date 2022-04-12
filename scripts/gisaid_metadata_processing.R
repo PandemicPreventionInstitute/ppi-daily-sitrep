@@ -119,7 +119,10 @@ metadata <- metadata[metadata$collection_date <= as.Date(Sys.Date(), format = "%
 # create masterlist of sequences with collection date in future of when they were submitted
 
 # TEST for update cadence
+if (USE_CASE != 'databricks'){ # when troubleshooting for db, want to see if this will run 
+    #even if metadata not updated (because auto extraction still not working)
 stopifnot(' Metadata is not up to to date' = max(metadata$submission_date, na.rm = T) ==today())
+}
 
 # 5. Exclude sequences in Next Strain exclusion list by assession ID
 
