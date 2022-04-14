@@ -212,7 +212,7 @@ gisaid_t <- gisaid_t %>%
 #gisaid_t <- gisaid_t %>%filter(collection_date>=(LAST_DATA_PULL_DATE -TIME_SERIES_WINDOW) & 
                                  #collection_date<= LAST_DATA_PULL_DATE)
 # Make sure that the most recent date is yesterday
-stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date) >= (today_date - days(2)))
+stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date) >= (today_date - days(4)))
 #write.csv(gisaid_t, "../data/gisaid_t.csv")
 
 # Subset to only recent data to get recent sequences and cases by country
