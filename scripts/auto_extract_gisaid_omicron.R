@@ -68,6 +68,8 @@ gisaid_metadata_GET_content<- content(gisaid_metadata_xz)
 omicron_gisaid_raw_text <- memDecompress(omicron_gisaid_GET_content, type = "xz", asChar = TRUE)
 gisaid_metadata_raw_text <- memDecompress(gisaid_metadata_GET_content, type = "xz", asChar = TRUE)
 
+test_raw_content<-memDecompress(omicron_gisaid_GET_content, asChar = TRUE)
+
 #4. It's formated as a csv file. Use "text" instead of "file" because we don't want to open a new connection, just "translate" the existing plain text data.
 omicron_gisaid <- read.csv(text = omicron_gisaid_raw_text)%>% 
     janitor::clean_names()%>%
