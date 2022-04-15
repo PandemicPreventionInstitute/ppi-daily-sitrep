@@ -12,6 +12,7 @@ if(USE_CASE == ""){
   USE_CASE<-'local'
 }
 
+print(USE_CASE) 
 FROM_FEED<-TRUE
 
 #------Libraries------------
