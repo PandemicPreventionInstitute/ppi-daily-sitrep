@@ -77,6 +77,7 @@ if (FROM_FEED == FALSE){
         filter(host == "Human", type == "betacoronavirus")
 }
 owid_raw<-read_csv(OWID_PATH)
+print('OWID data loaded successfully')
 
 
 
@@ -125,6 +126,7 @@ if (USE_CASE != 'databricks'){ # when troubleshooting for db, want to see if thi
 stopifnot(' Metadata is more than 4 days out of date' = max(metadata$submission_date, na.rm = T) >=today() - days(4))
 }
 
+print(paste0('Metadata loaded successfully, last submission date is ', max(metadata$submission_date, na.rm = T)))
 # 5. Exclude sequences in Next Strain exclusion list by assession ID
 
 # 6. Generate country codes from GISAID country names
@@ -259,6 +261,7 @@ colnames(owid) <- paste("owid", colnames(owid),sep="_")
 
 # 10. Merge with GISAID metadata 
 merged_df<-left_join(owid, gisaid_t, by = c("owid_date"="gisaid_collect_date",  "owid_iso_code"="country_code" ))
+print('OWID and GISAID data successfully merged')
 
 # Fill in the NAs on the values 
 merged_df$n_new_sequences[is.na(merged_df$n_new_sequences)]<-0

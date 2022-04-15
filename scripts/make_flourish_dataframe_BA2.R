@@ -94,6 +94,7 @@ CONF_LEVEL<-0.95 # confidence we want to be that a variant is not greater than o
 find_raw <- read.csv(ALL_DATA_PATH) %>%
 # standardize names with this janitor function
   clean_names()
+
  
 # select and rename necessary columns, selecting only those related to testing
 find_testing_t <- find_raw %>%
@@ -186,6 +187,7 @@ find_testing_clean$cum_tpr <- ifelse(find_testing_clean$cum_tpr < 0 | find_testi
 gisaid_raw <- read.csv(GISAID_DAILY_PATH) %>% # raw refers to all variants, by country, by day
   # standardize names with this janitor function
   clean_names()
+print('GISAID metadata successfuly loaded')
 
 # parse collection dates as dates (note this uses the imputed day 15 from metadata processing script)
 gisaid_raw$collection_date <- as.Date(as.character(gisaid_raw$gisaid_collect_date), format = "%Y-%m-%d")
@@ -223,6 +225,7 @@ if(USE_CASE != 'databricks'){
     stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date) >= (today_date - days(4)))
 #write.csv(gisaid_t, "../data/gisaid_t.csv")
 }
+print(paste0('Last collection date is ',max(gisaid_t$collection_date)))
 
 # Subset to only recent data to get recent sequences and cases by country
 gisaid_recent_data<-gisaid_t%>%filter(collection_date>=(LAST_DATA_PULL_DATE -TIME_WINDOW) & 
@@ -310,7 +313,7 @@ gisaid_summary_df$pct_BA2_panel[gisaid_summary_df$total_seq_last_week<100]<-past
 gisaid_summary_df$pct_BA2_panel[gisaid_summary_df$total_seq_last_week>100]<-paste0(gisaid_summary_df$pct_seq_BA_2_last_week[gisaid_summary_df$total_seq_last_week>100], ' %')
 gisaid_summary_df$pct_BA2_panel[gisaid_summary_df$total_seq_last_week==0]<-'No sequences were submitted from last week'
 
-
+print('GISAID summary dataframe successful')
 
 # Load and join shapefile for flourish
 shapefile <- read_delim(SHAPEFILES_FOR_FLOURISH_PATH, delim = "\t") %>%
@@ -320,6 +323,8 @@ shapefile <- read_delim(SHAPEFILES_FOR_FLOURISH_PATH, delim = "\t") %>%
 lat_long<-read.csv(LAT_LONG_FOR_FLOURISH_PATH)%>% clean_names()%>%
   rename(country_code= x3_letter_iso_code) %>%
   select(country_code, latitude, longitude)
+
+print('Shapefiles successfully loaded')
 
 gisaid_summary_df <-left_join(shapefile, gisaid_summary_df, by = 'country_code')
 gisaid_summary_df <- left_join(lat_long, gisaid_summary_df, by = "country_code")
@@ -344,6 +349,7 @@ stopifnot ("Error: gisaid_summary_df.csv does not contain all necessary columns"
 # Check to make sure cases are filled in for say USA
 stopifnot("Error: case data not in gisaid_summary_df" = 
             !is.na(gisaid_summary_df$cases_per_100k_last_7_days[gisaid_summary_df$country_code=="USA"]))
+print('Passed unit tests')
 
 # only output the necessary columns!
 gisaid_summary_df<-gisaid_summary_df%>%mutate(
@@ -376,6 +382,8 @@ if (USE_CASE == "local"){
 if (USE_CASE == "databricks"){
     write.csv(gisaid_summary_df, "/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/gisaid_summary_df_ba2.csv")
 }
+
+print('File saved successfully')
 
 
 
