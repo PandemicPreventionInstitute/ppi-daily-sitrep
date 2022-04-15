@@ -70,7 +70,7 @@ LAT_LONG_FOR_FLOURISH_PATH<-'../data/static/country_lat_long_names.csv'
 if (USE_CASE == 'databricks'){
     GISAID_DAILY_PATH<-"/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/gisaid_owid_merged.csv" # from extracted datastream
     SHAPEFILES_FOR_FLOURISH_PATH <- '/dbfs/FileStore/tables/ppi-daily-sitrep/data/static/geometric_country_code_name_master_file.txt'
-    LAT_LONG_FOR_FLOURISH_PATH<-'/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/static/country_lat_long_names.csv'
+    LAT_LONG_FOR_FLOURISH_PATH<-'/dbfs/FileStore/tables/ppi-daily-sitrep/data/static/country_lat_long_names.csv'
     
 }
 
