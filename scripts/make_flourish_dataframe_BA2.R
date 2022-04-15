@@ -67,6 +67,13 @@ SHAPEFILES_FOR_FLOURISH_PATH <- '../data/static/geometric_country_code_name_mast
 LAT_LONG_FOR_FLOURISH_PATH<-'../data/static/country_lat_long_names.csv'
 }
 
+if (USE_CASE == 'databricks'){
+    GISAID_DAILY_PATH<-"/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/gisaid_owid_merged.csv" # from extracted datastream
+    SHAPEFILES_FOR_FLOURISH_PATH <- '/dbfs/FileStore/tables/ppi-daily-sitrep/data/static/geometric_country_code_name_master_file.txt'
+    LAT_LONG_FOR_FLOURISH_PATH<-'/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/static/country_lat_long_names.csv'
+    
+}
+
 LAST_DATA_PULL_DATE<-as.Date(substr(lubridate::now('EST'), 1, 10))-days(1) # Make this based off of yesterday!
 FIRST_DATE<-"2019-12-01"
 TIME_WINDOW <- 29 # since we will include the reference data
@@ -363,6 +370,10 @@ if (USE_CASE == "local"){
   write.csv(gisaid_summary_df, "../data/processed/gisaid_summary_df_ba2.csv")
 }
 
+
+if (USE_CASE == "databricks"){
+    write.csv(gisaid_summary_df, "/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/gisaid_summary_df_ba2.csv")
+}
 
 
 
