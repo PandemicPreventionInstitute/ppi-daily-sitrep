@@ -380,7 +380,7 @@ if (USE_CASE == "local"){
 
 
 if (USE_CASE == "databricks"){
-    write.csv(gisaid_summary_df, "/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/gisaid_summary_df_ba2.csv")
+    write.csv(gisaid_summary_df, "/dbfs/FileStore/tables/ppi-daily-sitrep/data/processed/gisaid_summary_df_ba2_db.csv")
 }
 
 print('File saved successfully')
