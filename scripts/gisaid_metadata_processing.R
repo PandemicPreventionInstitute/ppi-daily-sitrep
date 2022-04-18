@@ -200,7 +200,8 @@ gisaid_t<-left_join(gisaid_t, gisaid_t_BA_1, by = c("gisaid_collect_date", "coun
 
 # 9. Data frame with total number of ba.2 sequences by country day
 gisaid_t_BA_2<-metadata %>%group_by(code, collection_date) %>%
-  filter(pango_lineage == "BA.2") %>%
+    filter(grepl("BA.2", pango_lineage, fixed = TRUE)) %>%
+  #filter(pango_lineage == "BA.2") %>%
   summarise(ba_2 = n())%>%select(code, collection_date, ba_2)%>%
   rename(country_code = code,
          gisaid_collect_date = collection_date)

@@ -222,10 +222,10 @@ gisaid_t <- gisaid_t %>%
                                  #collection_date<= LAST_DATA_PULL_DATE)
 # Make sure that the most recent date is yesterday
 if(USE_CASE != 'databricks'){
-    stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date) >= (today_date - days(4)))
+    stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date[gisaid_t$n_new_sequences>0]) >= (today_date - days(4)))
 #write.csv(gisaid_t, "../data/gisaid_t.csv")
 }
-print(paste0('Last collection date is ',max(gisaid_t$collection_date)))
+print(paste0('Last collection date is ',max(gisaid_t$collection_date[gisaid_t$n_new_sequences>0])))
 
 # Subset to only recent data to get recent sequences and cases by country
 gisaid_recent_data<-gisaid_t%>%filter(collection_date>=(LAST_DATA_PULL_DATE -TIME_WINDOW) & 
@@ -340,6 +340,8 @@ stopifnot('USA has less than 50 cases per 100k in last 7 days' = US_df$cases_per
 stopifnot('USA has no sequencing data' = US_df$percent_of_cases_sequenced_last_30_days >0.0001)
 stopifnot('USA BA2 data not being detected' = US_df$n_ba_2>40)
 stopifnot('Country reporting greater than 100% BA.2' = sum(gisaid_summary_df$pct_BA2_dots>100, na.rm = T)==0)
+stopifnot('USA reporting less than 50% BA.2' = US_df$pct_BA2_dots>50)
+print(paste0('US is reporting ', US_df$pct_BA2_dots, '% BA.2 and its subvariants'))
 
 # select cols for flourish and ensure that they're present in the df
 stopifnot ("Error: gisaid_summary_df.csv does not contain all necessary columns" = 
