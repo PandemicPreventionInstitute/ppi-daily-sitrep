@@ -5,7 +5,7 @@
 # V1 does not include median and quartiles of lag time calculation
 
 #Jan 3rd 2022
-#rm(list = ls())
+rm(list = ls())
 
 USE_CASE = Sys.getenv("USE_CASE")
 if(USE_CASE == ""){
@@ -127,6 +127,7 @@ stopifnot(' Metadata is more than 4 days out of date' = max(metadata$submission_
 }
 
 print(paste0('Metadata loaded successfully, last submission date is ', max(metadata$submission_date, na.rm = T)))
+print(paste0('Metadata loaded successfully, last collection date is ', max(metadata$collection_date, na.rm = T)))
 # 5. Exclude sequences in Next Strain exclusion list by assession ID
 
 # 6. Generate country codes from GISAID country names
@@ -207,9 +208,22 @@ gisaid_t_BA_2<-metadata %>%group_by(code, collection_date) %>%
          gisaid_collect_date = collection_date)
 gisaid_t<-left_join(gisaid_t, gisaid_t_BA_2, by = c("gisaid_collect_date", "country_code"))
 
+# 9. Data frame with total number of ba.4/ba.5 sequences by country day
+gisaid_t_BA_4_5<-metadata %>%group_by(code, collection_date) %>%
+    filter(grepl("BA.4", pango_lineage, fixed = TRUE) |
+           grepl("BA.5", pango_lineage, fixed = TRUE)) %>%
+    summarise(ba_4_5 = n())%>%select(code, collection_date, ba_4_5)%>%
+    rename(country_code = code,
+           gisaid_collect_date = collection_date)
+gisaid_t<-left_join(gisaid_t, gisaid_t_BA_4_5, by = c("gisaid_collect_date", "country_code"))
+# Replace NAs with 0s
+gisaid_t$ba_1[is.na(gisaid_t$ba_1)]<-0
+gisaid_t$ba_2[is.na(gisaid_t$ba_2)]<-0
+gisaid_t$ba_4_5[is.na(gisaid_t$ba_4_5)]<-0
+
 # 10. All other sequences not ba_1 & ba_2 (presumably some version of delta)
 gisaid_t<-gisaid_t%>%mutate(
-  other = n_new_sequences - ba_1 - ba_2)
+  other = n_new_sequences - ba_1 - ba_2 - ba_4_5)
 
 
 
@@ -279,7 +293,7 @@ n_global_cases<-sum(merged_df$owid_new_cases)
 
 #-------Write data to file---------
 
-local
+#local
 if (USE_CASE == 'local'){
 write.csv(merged_df, '../data/processed/gisaid_owid_merged.csv', row.names = FALSE)
 #write_csv(suspect_date, '../data/suspect_date.csv')
