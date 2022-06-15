@@ -109,8 +109,7 @@ metadata$country[metadata$country == "Jonavos apskritis"] <- "Lithuania"
 metadata$country[metadata$country == "M?xico"] <- "Mexico"
 
 # 4. Deal with date issues
-# Assign submissions with missing date to the 15th of the month
-metadata$collection_date <- ifelse(nchar(as.character(metadata$collection_date)) == 7, paste(as.character(metadata$collection_date), "15", sep = "-"), as.character(metadata$collection_date))
+
 # format as dates
 metadata$collection_date<-ymd(metadata$collection_date)
 metadata$submission_date<-ymd(metadata$submission_date)
