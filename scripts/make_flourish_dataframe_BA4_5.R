@@ -342,6 +342,9 @@ stopifnot('Country reporting greater than 100% BA.2' = sum(gisaid_summary_df$pct
 #stopifnot('USA reporting less than 50% BA.4/BA.5' = US_df$pct_BA4_5_dots>50)
 print(paste0('US is reporting ', US_df$pct_BA_4_5_dots, '% BA.4/BA.5'))
 
+Canada_df <- gisaid_summary_df[gisaid_summary_df$country_code == "CAN",]
+stopifnot('Canada is missing sequencing data' = Canada_df$total_seq_last_week >10)
+
 # select cols for flourish and ensure that they're present in the df
 stopifnot ("Error: gisaid_summary_df.csv does not contain all necessary columns" = 
              c('geometry', 'latitude', 'longitude', 'Name', 'n_ba_4_5',
