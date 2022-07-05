@@ -221,7 +221,7 @@ gisaid_t <- gisaid_t %>%
                                  #collection_date<= LAST_DATA_PULL_DATE)
 # Make sure that the most recent date is yesterday
 if(USE_CASE != 'databricks'){
-    stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date[gisaid_t$n_new_sequences>0]) >= (today_date - days(5)))
+    stopifnot("GISAID metadata run isnt up to date" = max(gisaid_t$collection_date[gisaid_t$n_new_sequences>0]) >= (today_date - days(8)))
 #write.csv(gisaid_t, "../data/gisaid_t.csv")
 }
 print(paste0('Last collection date is ',max(gisaid_t$collection_date[gisaid_t$n_new_sequences>0])))
