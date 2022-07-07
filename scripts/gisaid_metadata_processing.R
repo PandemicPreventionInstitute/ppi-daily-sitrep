@@ -13,7 +13,7 @@ if(USE_CASE == ""){
 }
 
 print(USE_CASE) 
-FROM_FEED<-TRUE
+FROM_FEED<-FALSE
 
 #------Libraries------------
 if (USE_CASE== 'domino'){
