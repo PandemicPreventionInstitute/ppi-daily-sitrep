@@ -13,7 +13,7 @@ if(USE_CASE == ""){
 }
 
 print(USE_CASE) 
-FROM_FEED<-FALSE
+FROM_FEED<-TRUE
 
 #------Libraries------------
 if (USE_CASE== 'domino'){
@@ -122,7 +122,7 @@ metadata <- metadata[metadata$collection_date <= as.Date(Sys.Date(), format = "%
 # TEST for update cadence
 if (USE_CASE != 'databricks'){ # when troubleshooting for db, want to see if this will run 
     #even if metadata not updated (because auto extraction still not working)
-stopifnot(' Metadata is more than 4 days out of date' = max(metadata$submission_date, na.rm = T) >=today() - days(4))
+stopifnot(' Metadata is more than 7 days out of date' = max(metadata$submission_date, na.rm = T) >=today() - days(7))
 }
 
 print(paste0('Metadata loaded successfully, last submission date is ', max(metadata$submission_date, na.rm = T)))
